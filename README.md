@@ -1,1 +1,1 @@
-# config_inconsistency
+# configuration consistency checker
