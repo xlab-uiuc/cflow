@@ -21,3 +21,16 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# IDE-related files
+.idea/
+.settings/
+target/
+.classpath
+.project
+ccc.iml
+
+# app
+app/hadoop-2.9.2/
+app/spark-2.4.5-bin-hadoop2.7/
+app/hbase-2.3.0/

@@ -1,0 +1,798 @@
+# Packages to include in the analysis
+^android.
+^java.
+^org.apache.http.
+^org.joda.time.
+^org.apache.commons.
+^org.apache.curator.
+^com.google.common.
+^org.slf4j.Logger.
+
+<java.util.Stack: java.lang.Object push(java.lang.Object)>
+
+<java.util.Map: java.lang.Object put(java.lang.Object,java.lang.Object)>
+-<java.util.Map: void clear()>
+
+<java.util.TreeMap: void <init>(java.util.Map)>
+<java.util.HashMap: void <init>(java.util.Map)>
+<java.util.WeakHashMap: void <init>(java.util.Map)>
+<java.util.ConcurrentHashMap: void <init>(java.util.Map)>
+<java.util.LinkedHashMap: void <init>(java.util.Map)>
+
+<java.util.Map: java.lang.Object put(java.lang.Object,java.lang.Object)>
+<java.util.Map: java.lang.Object putAll(java.util.Map)>
+
+<java.util.List: boolean add(java.lang.Object)>
+<java.util.List: void add(int,java.lang.Object)>
+<java.util.List: boolean addAll(java.util.Collection)>
+<java.util.List: boolean addAll(int,java.util.Collection)>
+-<java.util.List: void clear()>
+<java.util.List: java.util.Iterator iterator()>
+~<java.util.List: int size()>
+
+<java.util.Iterator: java.lang.Object next()>
+
+<java.util.ArrayList: void <init>(java.util.Collection)>
+<java.util.LinkedList: void <init>(java.util.Collection)>
+
+<java.util.Set: boolean add(java.lang.Object)>
+<java.util.Set: boolean addAll(java.util.Collection)>
+-<java.util.Set: void clear()>
+~<java.util.Set: int size()>
+
+<java.util.Collection: boolean add(java.lang.Object)>
+<java.util.Collection: boolean addAll(java.util.Collection)>
+-<java.util.Collection: void clear()>
+~<java.util.Collection: int size()>
+
+<java.util.Vector: void <init>(java.util.Collection)>
+<java.util.Vector: void add(int,java.lang.Object)>
+<java.util.Vector: boolean add(java.lang.Object)>
+<java.util.Vector: boolean addAll(java.util.Collection)>
+<java.util.Vector: void addElement(java.lang.Object)>
+-<java.util.Vector: void clear()>
+~<java.util.Vector: int size()>
+
+<java.util.Queue: boolean add(java.lang.Object)>
+<java.util.Queue: boolean offer(java.lang.Object)>
+<java.util.Queue: java.lang.Object remove()>
+<java.util.Queue: java.lang.Object poll()>
+<java.util.Queue: java.lang.Object element()>
+<java.util.Queue: java.lang.Object peek()>
+~<java.util.Queue: int size()>
+
+<java.lang.StringBuilder: void <init>(java.lang.String)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(boolean)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(char)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(char[])>
+<java.lang.StringBuilder: java.lang.StringBuilder append(char[],int,int)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(double)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(float)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(int)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(long)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.CharSequence)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.CharSequence,int,int)>
+<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.StringBuffer)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,boolean)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,char)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,char[])>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,char[],int,int)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,double)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,float)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,int)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,long)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.Object)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.String)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.CharSequence)>
+<java.lang.StringBuilder: java.lang.StringBuilder insert(int,java.lang.CharSequence,int,int)>
+
+<java.lang.StringBuffer: void <init>(java.lang.String)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(boolean)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(char)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(char[])>
+<java.lang.StringBuffer: java.lang.StringBuffer append(char[],int,int)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(double)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(float)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(int)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(long)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.String)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.CharSequence)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.CharSequence,int,int)>
+<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.StringBuffer)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,boolean)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char[])>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,char[],int,int)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,double)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,float)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,int)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,long)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.Object)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.String)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.CharSequence)>
+<java.lang.StringBuffer: java.lang.StringBuffer insert(int,java.lang.CharSequence,int,int)>
+
+<java.lang.String: void <init>(byte[])>
+<java.lang.String: void <init>(byte[],int,int)>
+<java.lang.String: void <init>(byte[],int,int,java.lang.String)>
+<java.lang.String: void <init>(byte[],java.lang.String)>
+<java.lang.String: void <init>(char[])>
+<java.lang.String: void <init>(char[],int,int)>
+<java.lang.String: void <init>(int[],int,int)>
+<java.lang.String: void <init>(java.lang.String)>
+<java.lang.String: void <init>(java.lang.StringBuffer)>
+<java.lang.String: void <init>(java.lang.StringBuilder)>
+
+<java.lang.String: java.lang.String valueOf(boolean)>
+<java.lang.String: java.lang.String valueOf(char)>
+<java.lang.String: java.lang.String valueOf(char[])>
+<java.lang.String: java.lang.String valueOf(char[],int,int)>
+<java.lang.String: java.lang.String valueOf(double)>
+<java.lang.String: java.lang.String valueOf(float)>
+<java.lang.String: java.lang.String valueOf(int)>
+<java.lang.String: java.lang.String valueOf(long)>
+<java.lang.String: java.lang.String valueOf(java.lang.Object)>
+
+<java.lang.String: java.lang.String substring(int)>
+<java.lang.String: java.lang.String substring(int,int)>
+
+<java.lang.String: java.lang.String concat(java.lang.String)>
+
+<java.lang.String: java.lang.String format(java.util.Locale,java.lang.String,java.lang.Object[])>
+<java.lang.String: java.lang.String format(java.lang.String,java.lang.Object[])>
+
+<java.lang.String: char[] toCharArray()>
+
+<java.lang.String: java.lang.String replaceAll(java.lang.String,java.lang.String)>
+<java.lang.String: java.lang.String replace(java.lang.CharSequence,java.lang.CharSequence)>
+
+<java.lang.Byte: java.lang.Byte valueOf(byte)>
+<java.lang.Byte: java.lang.Byte valueOf(java.lang.String)>
+<java.lang.Byte: java.lang.Byte valueOf(java.lang.String,int)>
+<java.lang.Byte: long parseByte(java.lang.String)>
+<java.lang.Byte: long parseByte(java.lang.String,int)>
+
+<java.lang.Integer: java.lang.String toBinaryString(int)>
+<java.lang.Integer: java.lang.String toHexString(int)>
+<java.lang.Integer: java.lang.String toOctalString(int)>
+
+<java.lang.Integer: void <init>(int)>
+<java.lang.Integer: void <init>(java.lang.String)>
+<java.lang.Integer: int parseInt(java.lang.String)>
+<java.lang.Integer: int parseInt(java.lang.String,int)>
+<java.lang.Integer: java.lang.Integer valueOf(int)>
+<java.lang.Integer: java.lang.Integer valueOf(java.lang.String)>
+<java.lang.Integer: java.lang.Integer valueOf(java.lang.String,int)>
+<java.lang.Integer: java.lang.Integer toString(int)>
+<java.lang.Integer: java.lang.Integer toString(int,int)>
+
+<java.lang.Short: java.lang.Short valueOf(short)>
+<java.lang.Short: java.lang.Short valueOf(java.lang.String)>
+<java.lang.Short: java.lang.Short valueOf(java.lang.String,int)>
+<java.lang.Short: long parseShort(java.lang.String)>
+<java.lang.Short: long parseShort(java.lang.String,int)>
+
+<java.lang.Long: void <init>(long)>
+<java.lang.Long: void <init>(java.lang.String)>
+<java.lang.Long: long parseLong(java.lang.String)>
+<java.lang.Long: long parseLong(java.lang.String,int)>
+<java.lang.Long: java.lang.Long valueOf(long)>
+<java.lang.Long: java.lang.Long valueOf(java.lang.String)>
+<java.lang.Long: java.lang.Long valueOf(java.lang.String,int)>
+<java.lang.Long: java.lang.String toString(long)>
+<java.lang.Long: java.lang.String toString(long,int)>
+
+<java.lang.Float: void <init>(float)>
+<java.lang.Float: void <init>(java.lang.String)>
+<java.lang.Float: float parseFloat(java.lang.String)>
+<java.lang.Float: java.lang.Float valueOf(float)>
+<java.lang.Float: java.lang.Float valueOf(java.lang.String)>
+<java.lang.Float: java.lang.String toString(float)>
+
+<java.lang.Double: void <init>(double)>
+<java.lang.Double: void <init>(java.lang.String)>
+<java.lang.Double: double parseDouble(java.lang.String)>
+<java.lang.Double: java.lang.Double valueOf(double)>
+<java.lang.Double: java.lang.Double valueOf(java.lang.String)>
+<java.lang.Double: java.lang.String toString(double)>
+
+<java.lang.Boolean: void <init>(boolean)>
+<java.lang.Boolean: void <init>(java.lang.String)>
+<java.lang.Boolean: java.lang.Boolean valueOf(boolean)>
+<java.lang.Boolean: java.lang.Boolean valueOf(java.lang.String)>
+<java.lang.Boolean: java.lang.String toString(boolean)>
+
+<java.lang.Character: void <init>(char)>
+<java.lang.Character: java.lang.Boolean valueOf(char)>
+<java.lang.Character: char forDigit(int,int)>
+
+<java.lang.Error: void <init>(java.lang.String)>
+
+<java.lang.Exception: void <init>(java.lang.String)>
+
+<java.lang.ref.Reference: void <init>()>
+<java.lang.ref.WeakReference: void <init>(java.lang.Object)>
+
+<java.math.BigDecimal: void <init>(int)>
+
+<java.math.BigInteger: void <init>(byte[])>
+<java.math.BigInteger: void <init>(int,byte[])>
+<java.math.BigInteger: void <init>(java.lang.String)>
+<java.math.BigInteger: void <init>(java.lang.String,int)>
+<java.math.BigInteger: java.math.BigInteger valueOf(long)>
+
+<java.math.BigInteger: java.math.BigInteger add(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger and(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger andNot(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger divide(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger[] divideAndRemainder(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger gcd(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger max(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger min(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger mod(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger modInverse(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger modPow(java.math.BigInteger,java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger multiply(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger or(java.math.BigInteger)>
+<java.math.BigInteger: java.math.BigInteger xor(java.math.BigInteger)>
+
+<java.io.FileInputStream: void <init>(java.io.File)>
+<java.io.FileOutputStream: void <init>(java.lang.String)>
+
+<java.io.StringReader: void <init>(java.lang.String)>
+<java.io.InputStreamReader: void <init>(java.io.InputStream,java.lang.String)>
+<java.io.BufferedReader: void <init>(java.io.Reader)>
+
+<java.io.OutputStream: void write(byte[])>
+<java.io.OutputStream: void write(byte[],int,int)>
+<java.io.OutputStream: void write(int)>
+
+<java.io.ByteArrayOutputStream: void write(byte[],int,int)>
+<java.io.ByteArrayOutputStream: void write(int)>
+
+<java.io.ObjectOutputStream: void writeObject(java.lang.Object>
+
+<java.io.ObjectInputStream: void <init>(java.io.InputStream)>
+
+<java.io.File: void <init>(java.lang.String)>
+<java.io.File: void <init>(java.lang.String,java.lang.String)>
+
+<java.text.MessageFormat: void <init>(java.lang.String)>
+<java.text.MessageFormat: void <init>(java.lang.String,java.util.Locale)>
+<java.text.MessageFormat: java.lang.String format(java.lang.String,java.lang.Object[])>
+
+<java.net.URI: void <init>(java.lang.String)>
+<java.net.URI: void <init>(java.lang.String,java.lang.String,java.lang.String)>
+<java.net.URI: void <init>(java.lang.String,java.lang.String,java.lang.String,int,java.lang.String,java.lang.String,java.lang.String)>
+<java.net.URI: void <init>(java.lang.String,java.lang.String,java.lang.String,java.lang.String)>
+<java.net.URI: void <init>(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)>
+<java.net.URI: java.net.URI create(java.lang.String)>
+
+<java.net.URL: void <init>(java.lang.String)>
+<java.net.URL: void <init>(java.lang.String,java.lang.String,int,java.lang.String)>
+<java.net.URL: void <init>(java.lang.String,java.lang.String,int,java.lang.String,java.net.URLStreamHandler)>
+<java.net.URL: void <init>(java.lang.String,java.lang.String,java.lang.String)>
+<java.net.URL: void <init>(java.net.URL,java.lang.String)>
+<java.net.URL: void <init>(java.net.URL,java.lang.String,java.net.URLStreamHandler)>
+
+<java.net.HttpURLConnection: void setRequestMethod(java.lang.String)>
+
+<java.util.Collections: java.util.List synchronizedCollection(java.util.Collection)>
+<java.util.Collections: java.util.List synchronizedList(java.util.List)>
+<java.util.Collections: java.util.List synchronizedMap(java.util.Map)>
+<java.util.Collections: java.util.List synchronizedSet(java.util.Set)>
+<java.util.Collections: java.util.List synchronizedSortedMap(java.util.SortedMap)>
+<java.util.Collections: java.util.List synchronizedSortedSet(java.util.SortedSet)>
+
+<java.util.Collections: java.util.List unmodifiableCollection(java.util.Collection)>
+<java.util.Collections: java.util.List unmodifiableList(java.util.List)>
+<java.util.Collections: java.util.List unmodifiableMap(java.util.Map)>
+<java.util.Collections: java.util.List unmodifiableSet(java.util.Set)>
+<java.util.Collections: java.util.List unmodifiableSortedMap(java.util.SortedMap)>
+<java.util.Collections: java.util.List unmodifiableSortedSet(java.util.SortedSet)>
+
+<java.util.Collections: java.util.Set singleton(java.lang.Object)>
+<java.util.Collections: java.util.List singletonList(java.lang.Object)>
+<java.util.Collections: java.util.Map singletonMap(java.lang.Object,java.lang.Object)>
+
+<android.content.ContentValues: void put(java.lang.String,java.lang.Byte)>
+<android.content.ContentValues: void put(java.lang.String,java.lang.Integer)>
+<android.content.ContentValues: void put(java.lang.String,java.lang.Float)>
+<android.content.ContentValues: void put(java.lang.String,java.lang.Short)>
+<android.content.ContentValues: void put(java.lang.String,byte[])>
+<android.content.ContentValues: void put(java.lang.String,java.lang.String)>
+<android.content.ContentValues: void put(java.lang.String,java.lang.Double)>
+<android.content.ContentValues: void put(java.lang.String,java.lang.Long)>
+<android.content.ContentValues: void put(java.lang.String,java.lang.Boolean)>
+
+<android.content.ContentValues: void putAll(android.content.ContentValues)>
+<android.content.ContentValues: void putNull(java.lang.String)>
+
+<android.content.Intent: android.content.Intent addFlags(int)>
+<android.content.Intent: android.content.Intent setFlags(int)>
+<android.content.Intent: android.content.Intent parseIntent(android.content.res.Resources,org.xmlpull.v1.XmlPullParser,android.util.AttributeSet)>
+<android.content.Intent: android.content.Intent parseUri(java.lang.String,int)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,boolean)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,byte)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,char)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,short)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,long)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,int)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,float)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,double)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,java.lang.String)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,java.lang.CharSequence)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,android.os.Parcelable)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,android.os.Parcelable[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,java.io.Serializable)>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,boolean[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,byte[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,short[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,char[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,int[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,long[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,float[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,double[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,java.lang.String[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,java.lang.CharSequence[])>
+<android.content.Intent: android.content.Intent putExtra(java.lang.String,android.os.Bundle)>
+<android.content.Intent: android.content.Intent putExtras(android.content.Intent)>
+<android.content.Intent: android.content.Intent putExtras(android.os.Bundle)>
+
+<android.content.ContextWrapper: android.content.Context getBaseContext()>
+
+<android.content.IntentFilter: void addAction(java.lang.String)>
+
+<android.database.MatrixCursor: void addRow(java.lang.Object[])>
+
+<android.os.Bundle: void putBoolean(java.lang.String,boolean)>
+
+<org.apache.http.message.BasicNameValuePair: void <init>(java.lang.String,java.lang.String)>
+
+<org.apache.http.client.entity.UrlEncodedFormEntity: void <init>(java.util.List,java.lang.String)>
+<org.apache.http.client.entity.UrlEncodedFormEntity: void <init>(java.util.List)>
+
+<org.apache.http.entity.StringEntity: void <init>(java.lang.String)>
+<org.apache.http.entity.StringEntity: void <init>(java.lang.String,java.nio.charset.Charset)>
+<org.apache.http.entity.StringEntity: void <init>(java.lang.String,org.apache.http.entity.ContentType)>
+<org.apache.http.entity.StringEntity: void <init>(java.lang.String,java.lang.String)>
+<org.apache.http.entity.StringEntity: void <init>(java.lang.String,java.lang.String,java.lang.String)>
+
+<org.apache.http.client.methods.HttpPost: void <init>(java.lang.String)>
+<org.apache.http.client.methods.HttpPost: void <init>(java.net.URI)>
+
+<org.apache.http.HttpEntityEnclosingRequest: void setEntity(org.apache.http.HttpEntity)>
+
+<java.util.Arrays: java.util.List asList(java.lang.Object[])>
+<java.util.Arrays: java.lang.Object[] copyOf(java.lang.Object[],int)>
+<java.util.Arrays: java.lang.String toString(java.lang.Object[])>
+
+<java.util.UUID: void <init>(long,long)> 
+
+~<android.app.Activity: android.view.View findViewById(int)>
+~<android.app.Activity: void setContentView(int)>
+~<android.app.Activity: void setContentView(android.view.View)>
+<android.widget.EditText: android.text.Editable getText()>
+<android.widget.Button: void setHint(java.lang.CharSequence)>
+<android.text.Editable: java.lang.String toString()>
+
+<javax.servlet.ServletResponse: java.io.PrintWriter getWriter()>
+
+# Exclude the ServerSocket stuff
+# ~<java.net.ServerSocket: java.net.Socket accept()>
+# ~<java.net.Socket: java.io.InputStream getInputStream()>
+
+<java.nio.ByteBuffer: java.nio.ByteBuffer put(byte)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer put(byte[])>
+<java.nio.ByteBuffer: java.nio.ByteBuffer put(byte[],int,int)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer put(java.nio.ByteBuffer)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer put(int,byte)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putChar(char)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putChar(int,char)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putDouble(double)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putDouble(int,double)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putFloat(float)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putFloat(int,float)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putInt(int)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putInt(int,int)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putLong(long)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putLong(int,long)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putShort(short)>
+<java.nio.ByteBuffer: java.nio.ByteBuffer putShort(int,short)>
+
+~<android.content.ContextWrapper: android.content.Context getApplicationContext()>
+
+<android.content.Context: void sendBroadcast(android.content.Intent)>
+<android.content.Context: void sendBroadcast(android.content.Intent, java.lang.String)>
+<android.content.Context: android.content.Intent registerReceiver(android.content.BroadcastReceiver,android.content.IntentFilter,java.lang.String,android.os.Handler)>
+<android.content.Context: android.content.Intent registerReceiver(android.content.BroadcastReceiver,android.content.IntentFilter)>
+~<android.view.ContextThemeWrapper: android.content.Intent registerReceiver(android.content.BroadcastReceiver,android.content.IntentFilter,java.lang.String,android.os.Handler)>
+~<android.view.ContextThemeWrapper: android.content.Intent registerReceiver(android.content.BroadcastReceiver,android.content.IntentFilter)>
+
+<java.util.regex.Pattern: java.util.regex.Matcher matcher(java.lang.CharSequence)>
+
+
+<java.lang.ProcessBuilder: java.lang.ProcessBuilder command(java.lang.String[])>
+
+<android.os.Parcel: void writeArray(java.lang.Object[])>
+<android.os.Parcel: void writeBinderArray(android.os.IBinder[])>
+<android.os.Parcel: void writeBinderList(java.util.List)>
+<android.os.Parcel: void writeBooleanArray(boolean[])>
+<android.os.Parcel: void writeBundle(android.os.Bundle)>
+<android.os.Parcel: void writeByte(byte)>
+<android.os.Parcel: void writeByteArray(byte[],int,int)>
+<android.os.Parcel: void writeByteArray(byte[])>
+<android.os.Parcel: void writeCharArray(char[])>
+<android.os.Parcel: void writeDouble(double)>
+<android.os.Parcel: void writeDoubleArray(double[])>
+<android.os.Parcel: void writeException(java.lang.Exception)>
+<android.os.Parcel: void writeFileDescriptor(java.io.FileDescriptor)>
+<android.os.Parcel: void writeFloat(float)>
+<android.os.Parcel: void writeFloatArray(float[])>
+<android.os.Parcel: void writeInt(int)>
+<android.os.Parcel: void writeIntArray(int[])>
+<android.os.Parcel: void writeInterfaceToken(java.lang.String)>
+<android.os.Parcel: void writeList(java.util.List)>
+<android.os.Parcel: void writeLong(long)>
+<android.os.Parcel: void writeLongArray(long[])>
+<android.os.Parcel: void writeMap(java.util.Map)>
+<android.os.Parcel: void writeParcelable(android.os.Parcelable,int)>
+<android.os.Parcel: void writeParcelableArray(android.os.Parcelable[],int)>
+<android.os.Parcel: void writePersistableBundle(android.os.PersistableBundle)>
+<android.os.Parcel: void writeSerializable(java.io.Serializable)>
+<android.os.Parcel: void writeSize(android.util.Size)>
+<android.os.Parcel: void writeSizeF(android.util.SizeF)>
+<android.os.Parcel: void writeSparseArray(android.util.SparseArray)>
+<android.os.Parcel: void writeSparseBooleanArray(android.util.SparseBooleanArray)>
+<android.os.Parcel: void writeString(java.lang.String)>
+<android.os.Parcel: void writeStringArray(java.lang.String[])>
+<android.os.Parcel: void writeStringList(java.util.List)>
+<android.os.Parcel: void writeStrongBinder(android.os.IBinder)>
+<android.os.Parcel: void writeStrongInterface(android.os.IInterface)>
+<android.os.Parcel: void writeTypedArray(android.os.Parcelable[],int)>
+<android.os.Parcel: void writeTypedList(java.util.List)>
+<android.os.Parcel: void writeValue(java.lang.Object)>
+<android.os.Parcel: void unmarshall(byte[],int,int)>
+
+<android.graphics.Point: void <init>(int,int)>
+<android.graphics.Point: void <init>(android.graphics.Point)>
+<android.graphics.PointF: void <init>(float,float)>
+<android.graphics.PointF: void <init>(android.graphics.Point)>
+
+<android.telephony.SmsMessage: android.telephony.SmsMessage createFromPdu(byte[])>
+<android.telephony.gsm.SmsMessage: android.telephony.gsm.SmsMessage createFromPdu(byte[])>
+
+~<android.content.SharedPreferences: android.content.SharedPreferences$Editor edit()>
+
+<android.app.DownloadManager$Request: void <init>(android.net.Uri)>
+
+<java.lang.Throwable: void <init>(java.lang.String)>
+<java.lang.Throwable: void <init>(java.lang.String,java.lang.Throwable)>
+<java.lang.Throwable: void <init>(java.lang.String,java.lang.Throwable,boolean,boolean)>
+<java.lang.Throwable: void <init>(java.lang.Throwable)>
+
+<org.joda.time.convert.CalendarConverter: org.joda.time.Chronology getChronology(java.lang.Object,org.joda.time.Chronology)>
+<org.joda.time.convert.CalendarConverter: org.joda.time.Chronology getChronology(java.lang.Object,org.joda.time.DateTimeZone)>
+
+<org.joda.time.chrono.BuddhistChronology: org.joda.time.chrono.BuddhistChronology getInstance()>
+<org.joda.time.chrono.BuddhistChronology: org.joda.time.chrono.BuddhistChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.BuddhistChronology: org.joda.time.chrono.BuddhistChronology getInstanceUTC()>
+
+<org.joda.time.chrono.CopticChronology: org.joda.time.chrono.CopticChronology getInstance()>
+<org.joda.time.chrono.CopticChronology: org.joda.time.chrono.CopticChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.CopticChronology: org.joda.time.chrono.CopticChronology getInstance(org.joda.time.DateTimeZone,int)>
+<org.joda.time.chrono.CopticChronology: org.joda.time.chrono.CopticChronology getInstanceUTC()>
+
+<org.joda.time.chrono.EthiopicChronology: org.joda.time.chrono.EthiopicChronology getInstance()>
+<org.joda.time.chrono.EthiopicChronology: org.joda.time.chrono.EthiopicChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.EthiopicChronology: org.joda.time.chrono.EthiopicChronology getInstance(org.joda.time.DateTimeZone,int)>
+<org.joda.time.chrono.EthiopicChronology: org.joda.time.chrono.EthiopicChronology getInstanceUTC()>
+
+<org.joda.time.chrono.GregorianChronology: org.joda.time.chrono.GregorianChronology getInstance()>
+<org.joda.time.chrono.GregorianChronology: org.joda.time.chrono.GregorianChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.GregorianChronology: org.joda.time.chrono.GregorianChronology getInstance(org.joda.time.DateTimeZone,int)>
+<org.joda.time.chrono.GregorianChronology: org.joda.time.chrono.GregorianChronology getInstanceUTC()>
+
+<org.joda.time.chrono.IslamicChronology: org.joda.time.chrono.IslamicChronology getInstance()>
+<org.joda.time.chrono.IslamicChronology: org.joda.time.chrono.IslamicChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.IslamicChronology: org.joda.time.chrono.IslamicChronology getInstance(org.joda.time.DateTimeZone,org.joda.time.chrono.IslamicChronology$LeapYearPatternType)>
+<org.joda.time.chrono.IslamicChronology: org.joda.time.chrono.IslamicChronology getInstanceUTC()>
+
+<org.joda.time.chrono.ISOChronology: org.joda.time.chrono.BuddhistChronology getInstance()>
+<org.joda.time.chrono.ISOChronology: org.joda.time.chrono.BuddhistChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.ISOChronology: org.joda.time.chrono.BuddhistChronology getInstanceUTC()>
+
+<org.joda.time.chrono.JulianChronology: org.joda.time.chrono.JulianChronology getInstance()>
+<org.joda.time.chrono.JulianChronology: org.joda.time.chrono.JulianChronology getInstance(org.joda.time.DateTimeZone)>
+<org.joda.time.chrono.JulianChronology: org.joda.time.chrono.JulianChronology getInstance(org.joda.time.DateTimeZone,int)>
+<org.joda.time.chrono.JulianChronology: org.joda.time.chrono.JulianChronology getInstanceUTC()>
+
+<org.joda.time.chrono.LenientChronology: org.joda.time.chrono.LenientChronology getInstance(org.joda.time.Chronology)>
+<org.joda.time.chrono.LimitChronology: org.joda.time.chrono.LimitChronology getInstance(org.joda.time.Chronology,org.joda.time.ReadableDateTime,org.joda.time.ReadableDateTime)>
+<org.joda.time.chrono.StrictChronology: org.joda.time.chrono.StrictChronology getInstance(org.joda.time.Chronology)>
+<org.joda.time.chrono.ZonedChronology: org.joda.time.chrono.ZonedChronology getInstance(org.joda.time.Chronology,org.joda.time.DateTimeZone)>
+
+<java.util.TimeZone: java.util.TimeZone getTimeZone(java.lang.String)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(byte[],java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(byte[],int,int,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(byte[],int,int,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(byte[],int,int,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(byte[],com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(byte[],com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.File,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.File,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.File,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.InputStream,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.InputStream,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.InputStream,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(com.fasterxml.jackson.core.JsonParser,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.ResolvedType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.reader,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.reader,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.io.reader,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.lang.String,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.lang.String,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.lang.String,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.net.URL,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.net.URL,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.Object readValue(java.net.URL,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: com.fasterxml.jackson.databind.MappingIterator readValues(com.fasterxml.jackson.core.JsonParser,java.lang.Class)>
+<com.fasterxml.jackson.databind.ObjectMapper: com.fasterxml.jackson.databind.MappingIterator readValues(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.databind.JavaType)>
+<com.fasterxml.jackson.databind.ObjectMapper: com.fasterxml.jackson.databind.MappingIterator readValues(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.ResolvedType)>
+<com.fasterxml.jackson.databind.ObjectMapper: com.fasterxml.jackson.databind.MappingIterator readValues(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.TypeReference)>
+
+<com.fasterxml.jackson.databind.ObjectMapper: byte[] writeValueAsBytes(java.lang.Object)>
+<com.fasterxml.jackson.databind.ObjectMapper: java.lang.String writeValueAsString(java.lang.Object)>
+
+<org.apache.http.util.EntityUtils: java.lang.String toString(org.apache.http.HttpEntity)>
+<org.apache.http.util.EntityUtils: java.lang.String toString(org.apache.http.HttpEntity,java.nio.Charset)>
+<org.apache.http.util.EntityUtils: java.lang.String toString(org.apache.http.HttpEntity,java.lang.String)>
+
+# ACAI added
+~<java.lang.String: boolean isEmpty()>
+~<java.lang.Object: void <init>()>
+r<java.lang.String: java.lang.String[] split(java.lang.String)>
+r<java.lang.Math: int max(int,int)>
+r<java.lang.String: boolean equals(java.lang.Object)>
+r<java.util.Collection: java.util.Iterator iterator()>
+r<java.lang.Class: java.lang.String getName()>
+r<java.lang.String: int length()>
+r<java.lang.Object: java.lang.Class getClass()>
+~<java.util.concurrent.ScheduledExecutorService: java.util.concurrent.ScheduledFuture scheduleAtFixedRate(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)>
+r<java.lang.String: java.lang.String trim()>
+<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>
+~<java.lang.Thread: void <init>()>
+r<java.lang.Enum: java.lang.Enum valueOf(java.lang.Class,java.lang.String)>
+r<java.lang.Math: int min(int,int)>
+r<java.lang.Class: java.lang.Class forName(java.lang.String)>
+r<java.lang.String: boolean contains(java.lang.CharSequence)>
+b<java.util.ArrayList: boolean add(java.lang.Object)>
+r<java.net.InetSocketAddress: java.lang.String getHostName()>
+r<java.lang.Math: long min(long,long)>
+~<java.lang.Thread: void <init>(java.lang.String)>
+r<java.lang.String: boolean startsWith(java.lang.String)>
+<java.util.concurrent.ConcurrentMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>
+~<org.slf4j.Logger: void debug(java.lang.String,java.lang.Object,java.lang.Object)>
+~<com.google.common.base.Preconditions: java.lang.Object checkNotNull(java.lang.Object,java.lang.Object)>
+r<java.lang.Math: double ceil(double)>
+~<java.util.Collection: boolean isEmpty()>
+r<java.net.InetSocketAddress: int getPort()>
+r<java.util.Collection: boolean contains(java.lang.Object)>
+r<java.lang.String: int indexOf(java.lang.String)>
+~<java.util.concurrent.ThreadPoolExecutor: void <init>(int,int,long,java.util.concurrent.TimeUnit,java.util.concurrent.BlockingQueue,java.util.concurrent.ThreadFactory)>
+~<org.apache.commons.lang.StringUtils: boolean isEmpty(java.lang.String)>
+~<org.slf4j.Logger: void debug(java.lang.String,java.lang.Object)>
+r<java.lang.Math: long max(long,long)>
+r<java.lang.String: byte[] getBytes(java.nio.charset.Charset)>
+~<org.slf4j.Logger: void debug(java.lang.String,java.lang.Object[])>
+~<java.util.Timer: void schedule(java.util.TimerTask,long,long)>
+~<java.lang.Class: boolean isAssignableFrom(java.lang.Class)>
+~<java.lang.Thread: void start()>
+~<java.lang.System: java.lang.String setProperty(java.lang.String,java.lang.String)>
+~<org.slf4j.Logger: void info(java.lang.String,java.lang.Object[])>
+~<java.lang.Thread: void sleep(long)>
+r<java.lang.String: java.lang.String toUpperCase(java.util.Locale)>
+r<java.util.Collection: java.lang.Object[] toArray(java.lang.Object[])>
+~<java.lang.Thread: void <init>(java.lang.Runnable)>
+~<org.apache.curator.framework.CuratorFrameworkFactory$Builder: org.apache.curator.framework.CuratorFrameworkFactory$Builder sessionTimeoutMs(int)>
+~<java.util.LinkedHashMap: void <init>(int,float,boolean)>
+r<java.lang.String: boolean equalsIgnoreCase(java.lang.String)>
+~<java.util.TimerTask: void <init>()>
+r<java.lang.Object: java.lang.String toString()>
+r<java.lang.String: boolean endsWith(java.lang.String)>
+~<com.google.common.cache.CacheBuilder: com.google.common.cache.CacheBuilder expireAfterWrite(long,java.util.concurrent.TimeUnit)>
+~<com.google.common.cache.CacheBuilder: com.google.common.cache.CacheBuilder maximumSize(long)>
+~<java.util.concurrent.ExecutorService: void execute(java.lang.Runnable)>
+~<java.lang.Thread: void <init>(java.lang.Runnable,java.lang.String)>
+<java.util.HashSet: void <init>(java.util.Collection)>
+~<org.slf4j.Logger: void info(java.lang.String,java.lang.Object,java.lang.Object)>
+r<java.lang.ClassLoader: java.net.URL getResource(java.lang.String)>
+r<java.lang.String: java.lang.String toUpperCase()>
+r<java.lang.String: char charAt(int)>
+r<java.lang.Math: float min(float,float)>
+~<java.lang.Object: void notifyAll()>
+r<java.util.Map: java.lang.Object get(java.lang.Object)>
+~<java.util.concurrent.ScheduledThreadPoolExecutor: java.util.concurrent.ScheduledFuture scheduleAtFixedRate(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)>
+r<java.util.regex.Pattern: java.util.regex.Pattern compile(java.lang.String)>
+~<com.google.common.cache.CacheBuilder: com.google.common.cache.LoadingCache build(com.google.common.cache.CacheLoader)>
+~<java.lang.Thread: void interrupt()>
+~<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>
+r<java.lang.String: int hashCode()>
+r<java.util.concurrent.TimeUnit: long convert(long,java.util.concurrent.TimeUnit)>
+r<java.lang.Float: int compare(float,float)>
+~<java.lang.Class: java.lang.reflect.Constructor getDeclaredConstructor(java.lang.Class[])>
+~<org.slf4j.Logger: void info(java.lang.String,java.lang.Object)>
+r<java.util.concurrent.ThreadPoolExecutor: void <init>(int,int,long,java.util.concurrent.TimeUnit,java.util.concurrent.BlockingQueue)>
+r<java.nio.file.Paths: java.nio.file.Path get(java.lang.String,java.lang.String[])>
+r<java.lang.Math: int round(float)>
+r<java.lang.Class: java.lang.String getSimpleName()>
+r<java.util.Collection: java.lang.Object[] toArray()>
+~<java.util.Timer: void scheduleAtFixedRate(java.util.TimerTask,long,long)>
+~<java.util.concurrent.Executors: java.util.concurrent.ExecutorService newFixedThreadPool(int)>
+~<com.google.common.base.Preconditions: java.lang.Object checkNotNull(java.lang.Object)>
+r<java.util.concurrent.ConcurrentMap: java.lang.Object get(java.lang.Object)>
+r<java.lang.Math: double abs(double)>
+r<java.lang.String: java.lang.String toLowerCase(java.util.Locale)>
+r<java.lang.Class: java.lang.Class forName(java.lang.String,boolean,java.lang.ClassLoader)>
+~<java.util.concurrent.Executors: java.util.concurrent.ExecutorService newFixedThreadPool(int,java.util.concurrent.ThreadFactory)>
+~<java.lang.Object: void wait()>
+~<java.nio.ByteBuffer: java.nio.ByteBuffer allocateDirect(int)>
+~<java.util.concurrent.ArrayBlockingQueue: void <init>(int)>
+~<java.util.concurrent.ExecutorService: java.util.concurrent.Future submit(java.util.concurrent.Callable)>
+r<java.util.Collections: java.util.Map synchronizedMap(java.util.Map)>
+r<java.lang.Integer: java.lang.String toString(int)>
+r<java.security.AccessController: java.lang.Object doPrivileged(java.security.PrivilegedExceptionAction)>
+r<java.util.Set: boolean contains(java.lang.Object)>
+~<java.util.Timer: void schedule(java.util.TimerTask,long)>
+b<java.io.DataInputStream: void <init>(java.io.InputStream)>
+r<java.util.Map: java.lang.Object remove(java.lang.Object)>
+~<java.net.ServerSocket: void bind(java.net.SocketAddress,int)>
+b<java.util.StringTokenizer: void <init>(java.lang.String,java.lang.String)>
+~<java.lang.System: void arraycopy(java.lang.Object,int,java.lang.Object,int,int)>
+r<java.lang.String: int indexOf(int)>
+<java.net.InetSocketAddress: void <init>(java.lang.String,int)>
+~<java.util.Set: boolean remove(java.lang.Object)>
+~<java.util.concurrent.ConcurrentHashMap: void <init>(int,float,int)>
+~<java.util.ArrayList: void <init>(int)>
+r<java.util.Map: java.util.Set entrySet()>
+~<java.lang.Object: void wait(long)>
+~<org.apache.commons.lang3.StringUtils: boolean isEmpty(java.lang.CharSequence)>
+r<org.apache.commons.lang.RandomStringUtils: java.lang.String random(int,int,int,boolean,boolean,char[],java.util.Random)>
+~<java.util.LinkedHashMap: void <init>(int)>
+r<java.lang.Thread: java.lang.String getName()>
+b<java.util.concurrent.DelayQueue: boolean add(java.util.concurrent.Delayed)>
+r<java.util.Random: int nextInt(int)>
+r<java.lang.Class: int getModifiers()>
+~<java.lang.ThreadLocal: void <init>()>
+~<java.nio.ByteBuffer: java.nio.ByteBuffer allocate(int)>
+~<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>
+~<java.util.LinkedHashMap: void <init>()>
+~<java.lang.Iterable: java.util.Iterator iterator()>
+~<java.net.URLConnection: void setConnectTimeout(int)>
+~<java.util.concurrent.ThreadPoolExecutor: java.util.concurrent.Future submit(java.util.concurrent.Callable)>
+~<java.net.URLConnection: void setReadTimeout(int)>
+~<java.util.concurrent.ThreadFactory: java.lang.Thread newThread(java.lang.Runnable)>
+~<java.lang.Thread: void setDaemon(boolean)>
+b<java.util.concurrent.ConcurrentLinkedQueue: boolean add(java.lang.Object)>
+~<java.util.concurrent.Executor: void execute(java.lang.Runnable)>
+~<java.io.DataOutputStream: void writeInt(int)>
+~<java.io.OutputStream: void <init>()>
+r<java.lang.Long: long highestOneBit(long)>
+b<java.util.HashSet: boolean add(java.lang.Object)>
+~<java.lang.Thread: void setName(java.lang.String)>
+<java.util.concurrent.ConcurrentHashMap: java.lang.Object putIfAbsent(java.lang.Object,java.lang.Object)>
+~<java.util.concurrent.ScheduledThreadPoolExecutor: void <init>(int,java.util.concurrent.ThreadFactory)>
+<java.util.concurrent.ConcurrentMap: java.lang.Object put(java.lang.Object,java.lang.Object)>
+~<java.util.concurrent.ScheduledExecutorService: void execute(java.lang.Runnable)>
+~<java.nio.ByteBuffer: java.nio.Buffer position(int)>
+~<java.nio.Buffer: java.nio.Buffer position(int)>
+~<java.io.InputStream: int read(byte[])>
+~<java.lang.reflect.Proxy: java.lang.Object newProxyInstance(java.lang.ClassLoader,java.lang.Class[],java.lang.reflect.InvocationHandler)>
+~<java.nio.ByteBuffer: java.nio.Buffer limit(int)>
+~<java.lang.IllegalArgumentException: void <init>(java.lang.String)>
+<java.util.Hashtable: java.lang.Object put(java.lang.Object,java.lang.Object)>
+~<java.util.concurrent.CountDownLatch: boolean await(long,java.util.concurrent.TimeUnit)>
+~<java.util.concurrent.ConcurrentMap: boolean remove(java.lang.Object,java.lang.Object)>
+~<java.lang.Object: void notify()>
+~<org.apache.commons.net.ftp.FTPClient: void connect(java.lang.String,int)>
+r<java.lang.Math: double pow(double,double)>
+~<java.lang.Thread: boolean isAlive()>
+b<java.io.DataOutputStream: void <init>(java.io.OutputStream)>
+~<java.security.SecureRandom: java.security.SecureRandom getInstance(java.lang.String)>
+r<java.util.List: java.lang.Object[] toArray(java.lang.Object[])>
+~<java.nio.ByteBuffer: java.nio.ByteBuffer wrap(byte[],int,int)>
+~<java.util.zip.Deflater: int deflate(byte[],int,int)>
+r<java.util.Arrays: byte[] copyOf(byte[],int)>
+~<java.util.PriorityQueue: void <init>(int,java.util.Comparator)>
+~<java.io.InputStream: int read(byte[],int,int)>
+~<java.util.concurrent.LinkedBlockingQueue: void <init>(int)>
+b<java.io.BufferedOutputStream: void <init>(java.io.OutputStream)>
+~<java.io.FileInputStream: void <init>(java.lang.String)>
+~<java.net.NetworkInterface: java.net.NetworkInterface getByName(java.lang.String)>
+~<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>
+~<java.util.concurrent.ExecutorService: boolean awaitTermination(long,java.util.concurrent.TimeUnit)>
+r<java.lang.Object: java.lang.Object clone()>
+r<java.lang.Integer: int highestOneBit(int)>
+~<java.lang.Thread: void join()>
+~<java.util.ArrayList: int size()>
+r<java.lang.String: int lastIndexOf(java.lang.String)>
+r<java.util.ArrayList: java.lang.Object get(int)>
+r<java.util.regex.Pattern: java.lang.String pattern()>
+r<java.lang.Class: java.lang.Class asSubclass(java.lang.Class)>
+r<java.util.List: boolean contains(java.lang.Object)>
+~<java.util.concurrent.ScheduledThreadPoolExecutor: java.util.concurrent.ScheduledFuture schedule(java.lang.Runnable,long,java.util.concurrent.TimeUnit)>
+r<java.lang.Boolean: boolean parseBoolean(java.lang.String)>
+~<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+~<java.nio.ByteBuffer: java.nio.ByteBuffer wrap(byte[])>
+r<java.util.List: java.util.List subList(int,int)>
+~<java.util.Map: boolean isEmpty()>
+~<java.net.InetSocketAddress: void <init>(int)>
+r<java.io.InputStream: long skip(long)>
+~<com.google.common.cache.CacheBuilder: com.google.common.cache.CacheBuilder initialCapacity(int)>
+r<java.text.NumberFormat: java.lang.String format(long)>
+~<com.google.common.cache.CacheBuilder: com.google.common.cache.CacheBuilder weigher(com.google.common.cache.Weigher)>
+r<java.lang.String: java.lang.String[] split(java.lang.String,int)>
+~<org.slf4j.Logger: void trace(java.lang.String,java.lang.Object,java.lang.Object)>
+~<org.slf4j.Logger: void trace(java.lang.String,java.lang.Object)>
+~<java.io.OutputStream: void close()>
+~<java.io.BufferedInputStream: void <init>(java.io.InputStream,int)>
+~<java.io.DataOutput: void writeLong(long)>
+~<java.net.HttpURLConnection: void setConnectTimeout(int)>
+r<com.google.common.collect.Sets: java.util.HashSet newHashSet(java.lang.Iterable)>
+~<java.util.concurrent.ScheduledThreadPoolExecutor: java.util.concurrent.ScheduledFuture scheduleWithFixedDelay(java.lang.Runnable,long,long,java.util.concurrent.TimeUnit)>
+~<java.net.InetSocketAddress: void <init>(java.net.InetAddress,int)>
+r<com.google.common.base.Joiner: java.lang.String join(java.lang.Object[])>
+~<org.slf4j.Logger: void trace(java.lang.String,java.lang.Object[])>
+~<java.io.OutputStream: void flush()>
+~<com.google.common.base.Preconditions: void checkState(boolean,java.lang.String,java.lang.Object[])>
+r<java.util.concurrent.TimeUnit: long toSeconds(long)>
+~<java.net.HttpURLConnection: void setReadTimeout(int)>
+~<java.util.concurrent.atomic.AtomicInteger: void set(int)>
+~<java.util.ArrayList: boolean remove(java.lang.Object)>
+~<java.util.concurrent.locks.ReentrantLock: void lock()>
+~<java.util.concurrent.ExecutorService: java.util.concurrent.Future submit(java.lang.Runnable)>
+~<java.util.concurrent.ForkJoinPool: void execute(java.util.concurrent.ForkJoinTask)>
+~<com.google.common.base.Preconditions: void checkArgument(boolean,java.lang.String,java.lang.Object[])>
+r<com.google.common.net.InetAddresses: boolean isInetAddress(java.lang.String)>
+r<java.lang.ClassLoader: java.lang.Class loadClass(java.lang.String)>
+r<com.google.common.collect.Collections2: java.util.Collection filter(java.util.Collection,com.google.common.base.Predicate)>
+r<java.util.HashMap: java.lang.Object get(java.lang.Object)>
+~<org.slf4j.Logger: void warn(java.lang.String,java.lang.Object,java.lang.Object)>
+b<java.util.TreeSet: void <init>(java.util.Collection)>
+r<java.util.concurrent.TimeUnit: long toMillis(long)>
+~<com.google.common.util.concurrent.ListeningExecutorService: com.google.common.util.concurrent.ListenableFuture submit(java.util.concurrent.Callable)>
+~<com.google.common.util.concurrent.Futures: void addCallback(com.google.common.util.concurrent.ListenableFuture,com.google.common.util.concurrent.FutureCallback)>
+b<java.util.Calendar: void add(int,int)>
+~<java.util.Collections: void sort(java.util.List,java.util.Comparator)>
+r<java.util.Map: java.util.Collection values()>
+~<java.io.PrintWriter: void println(java.lang.Object)>
+~<java.util.concurrent.ThreadPoolExecutor: void <init>(int,int,long,java.util.concurrent.TimeUnit,java.util.concurrent.BlockingQueue,java.util.concurrent.ThreadFactory,java.util.concurrent.RejectedExecutionHandler)>
+r<java.lang.String: int compareTo(java.lang.String)>
+~<java.util.concurrent.atomic.AtomicLong: void set(long)>
+<java.util.EnumMap: java.lang.Object put(java.lang.Enum,java.lang.Object)>
+~<java.util.concurrent.locks.ReentrantReadWriteLock: void <init>(boolean)>
+~<java.util.HashMap: int size()>
+~<java.net.HttpURLConnection: void setChunkedStreamingMode(int)>
+r<java.util.concurrent.ThreadLocalRandom: int nextInt(int)>
+~<java.util.concurrent.ForkJoinPool: void <init>(int)>
+~<java.io.DataOutputStream: void writeLong(long)>
+~<org.slf4j.Logger: void error(java.lang.String,java.lang.Object)>
+~<java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy: void <init>()>
+~<java.io.FileOutputStream: void write(byte[],int,int)>
+b<java.util.LinkedHashSet: boolean add(java.lang.Object)>
+b<java.util.concurrent.CopyOnWriteArrayList: boolean add(java.lang.Object)>
+~<org.apache.commons.io.IOUtils: void closeQuietly(java.io.Closeable)>
