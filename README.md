@@ -28,3 +28,9 @@ Third, compile the project:
 $ cd [path-to-ccc]
 $ mvn compile
 ```
+
+One example running command is as follows:
+
+```
+$ ./run.sh -a hadoop_common
+```
