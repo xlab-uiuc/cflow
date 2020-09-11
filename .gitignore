@@ -31,9 +31,9 @@ target/
 ccc.iml
 
 # app
-app/hadoop-2.9.2/
-app/spark-2.4.5-bin-hadoop2.7/
-app/hbase-2.3.0/
+app/hadoop*/
+app/spark*/
+app/hbase*/
 
 # temp files
 tmp.txt
