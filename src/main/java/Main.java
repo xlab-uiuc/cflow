@@ -4,8 +4,10 @@ import acai.utility.AcaiConfig;
 import checking.CheckPass;
 import checking.DataTypeChk;
 import org.apache.commons.cli.*;
+import org.xml.sax.SAXException;
 import soot.jimple.infoflow.results.InfoflowResults;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -77,14 +79,14 @@ public class Main {
 
             run(considered);
 
-        } catch (ParseException ex) {
+        } catch (ParseException | ParserConfigurationException | SAXException ex) {
             System.out.println(ex.getMessage());
             new HelpFormatter().printHelp("ccc",options);
         }
 
     }
 
-    private static void run(String[][] considered) {
+    private static void run(String[][] considered) throws ParserConfigurationException, SAXException, IOException {
         List<String> appPaths = new LinkedList<>();
         List<String> srcPaths = new LinkedList<>();
         List<String> classPaths = new LinkedList<>();
@@ -106,7 +108,7 @@ public class Main {
         runChecking(configInterface, results);
     }
 
-    private static void runChecking(ConfigInterface configInterface, InfoflowResults results) {
+    private static void runChecking(ConfigInterface configInterface, InfoflowResults results) throws IOException, SAXException, ParserConfigurationException {
         CheckPass chkPass = new DataTypeChk();
         chkPass.runChecking(configInterface, results);
     }
