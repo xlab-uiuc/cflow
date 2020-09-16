@@ -176,8 +176,4 @@ public class CaseSensitivityChk implements CheckPass{
         return MIX;
     }
 
-    @Override
-    public Set<String> parseDefaultConfig() throws ParserConfigurationException, IOException, SAXException {
-        return null;
-    }
 }

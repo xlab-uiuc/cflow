@@ -4,6 +4,7 @@ import acai.utility.AcaiConfig;
 import checking.CaseSensitivityChk;
 import checking.CheckPass;
 import checking.DataTypeChk;
+import checking.UnusedParamChk;
 import org.apache.commons.cli.*;
 import org.xml.sax.SAXException;
 import soot.jimple.infoflow.results.InfoflowResults;
@@ -110,10 +111,14 @@ public class Main {
     }
 
     private static void runChecking(ConfigInterface configInterface, InfoflowResults results) throws IOException, SAXException, ParserConfigurationException {
+        CheckPass dataPass = new DataTypeChk();
+        dataPass.runChecking(configInterface, results);
+
         CheckPass casePass = new CaseSensitivityChk();
         casePass.runChecking(configInterface, results);
-        CheckPass chkPass = new DataTypeChk();
-        chkPass.runChecking(configInterface, results);
+
+        CheckPass unusedParamPass = new UnusedParamChk();
+        unusedParamPass.runChecking(configInterface, results);
     }
 
 }
