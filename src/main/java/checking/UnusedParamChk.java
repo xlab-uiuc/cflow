@@ -62,10 +62,17 @@ public class UnusedParamChk implements CheckPass {
         for (int i = 0; i < childList.getLength(); i++) {
             Node propertyNode = childList.item(i);
             NodeList propertyNodeList = propertyNode.getChildNodes();
+            String nodeName = "";
             for (int j = 0; j < propertyNodeList.getLength(); j++) {
                 Node node= propertyNodeList.item(j);
                 if (node.getNodeName() == "name") {
-                    defaultConfig.add(node.getTextContent());
+                    nodeName = node.getTextContent();
+                } else if (node.getNodeName() == "value") {
+                    // if value tag is empty, we don't consider it as unused parameter
+                    if (node.getTextContent() != "") {
+                        defaultConfig.add(nodeName);
+                    }
+                    break;
                 }
             }
         }
