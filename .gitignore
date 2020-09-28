@@ -37,3 +37,6 @@ app/hbase*/
 
 # temp files
 tmp.txt
+
+# acai
+acai/

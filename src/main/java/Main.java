@@ -1,6 +1,8 @@
 import acai.Acai;
 import acai.configInterface.ConfigInterface;
+import acai.flowdroid.AcaiInfoflowResultHandler;
 import acai.utility.AcaiConfig;
+import acai.utility.FlowComparator;
 import checking.*;
 import org.apache.commons.cli.*;
 import org.xml.sax.SAXException;
@@ -106,21 +108,22 @@ public class Main {
         InfoflowResults results = acai.getResults();
 
         // Run checking
-        runChecking(configInterface, results);
+
+        runChecking(configInterface, results, considered);
     }
 
-    private static void runChecking(ConfigInterface configInterface, InfoflowResults results) throws IOException, SAXException, ParserConfigurationException {
-        CheckPass dataTypeChk = new DataTypeChk();
-        dataTypeChk.runChecking(configInterface, results);
+    private static void runChecking(ConfigInterface configInterface, InfoflowResults results, String[][] considered) throws IOException, SAXException, ParserConfigurationException {
+        //CheckPass dataTypeChk = new DataTypeChk();
+        //dataTypeChk.runChecking(configInterface, results, considered);
 
-        CheckPass defaultValueChk = new DefaultValueChk();
-        defaultValueChk.runChecking(configInterface, results);
+        //CheckPass defaultValueChk = new DefaultValueChk();
+        //defaultValueChk.runChecking(configInterface, results, considered);
 
         CheckPass casePass = new CaseSensitivityChk();
-        casePass.runChecking(configInterface, results);
+        casePass.runChecking(configInterface, results, considered);
 
-        CheckPass unusedParamPass = new UnusedParamChk();
-        unusedParamPass.runChecking(configInterface, results);
+        //CheckPass unusedParamPass = new UnusedParamChk();
+        //unusedParamPass.runChecking(configInterface, results, considered);
     }
 
 }

@@ -25,7 +25,7 @@ import java.util.Set;
 public class DataTypeChk implements CheckPass {
 
     @Override
-    public void runChecking(ConfigInterface configInterface, InfoflowResults results) {
+    public void runChecking(ConfigInterface configInterface, InfoflowResults results, String[][] considered) {
         HashMap<String, Set<Type>> m = new HashMap<>();
         for (ResultSinkInfo sink : results.getResults().keySet()) {
             for (ResultSourceInfo source : results.getResults().get(sink)) {

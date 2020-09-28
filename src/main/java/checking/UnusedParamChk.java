@@ -21,7 +21,7 @@ import java.util.Set;
 public class UnusedParamChk implements CheckPass {
 
     @Override
-    public void runChecking(ConfigInterface configInterface, InfoflowResults results) {
+    public void runChecking(ConfigInterface configInterface, InfoflowResults results, String[][] considered) {
         HashSet<String> paramSet = new HashSet<>();
         for (ResultSinkInfo sink : results.getResults().keySet()) {
             for (ResultSourceInfo source : results.getResults().get(sink)) {

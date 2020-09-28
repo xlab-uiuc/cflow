@@ -13,6 +13,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.*;
 
+import acai.utility.Util;
+
 public class CaseSensitivityChk implements CheckPass{
 
     // Case type of a string
@@ -35,7 +37,7 @@ public class CaseSensitivityChk implements CheckPass{
     }
 
     @Override
-    public void runChecking(ConfigInterface configInterface, InfoflowResults results) {
+    public void runChecking(ConfigInterface configInterface, InfoflowResults results, String[][] considered) {
         Map<String, CaseInfo> mp = new HashMap<>();
         for (ResultSinkInfo sink : results.getResults().keySet()) {
             for (ResultSourceInfo source : results.getResults().get(sink)) {
@@ -50,7 +52,12 @@ public class CaseSensitivityChk implements CheckPass{
                 Type type = definitionFirstStmt.getLeftOp().getType();
                 if (!type.toString().equals("java.lang.String")) continue; // No need to check case sensitivity of non-String type params
 
-                String paramName = definitionFirstStmt.getInvokeExpr().getArg(0).toString();
+                //String paramName = definitionFirstStmt.getInvokeExpr().getArg(0).toString();
+                String paramName = configInterface.getConfigName(definitionFirstStmt.getInvokeExpr());
+
+                // ignore parameters whose flowdroid results are inconsistent
+                Set<String> affectedParams = Util.getAffectedParams(considered);
+                if (affectedParams.contains(paramName)) continue;
 
                 for (Stmt stmt: path){
                     try {
