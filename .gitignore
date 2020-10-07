@@ -38,5 +38,8 @@ app/hbase*/
 # temp files
 tmp.txt
 
-# acai
-acai/
+# vscode
+.vscode/
+
+# sootOutput
+sootOutput/
