@@ -5,8 +5,7 @@ import soot.Body;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
-import soot.jimple.AssignStmt;
-import soot.jimple.InvokeExpr;
+import soot.jimple.*;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 
@@ -30,6 +29,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     @Override
     protected void flowThrough(Set<Taint> in, Unit unit, Set<Taint> out) {
         out.addAll(in);
+
         if (unit instanceof AssignStmt) {
             AssignStmt assignStmt = (AssignStmt) unit;
             Value leftOp = assignStmt.getLeftOp();
@@ -37,10 +37,13 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (Taint t : in) {
                 for (ValueBox valueBox : rightOp.getUseBoxes()) {
                     if (t.getValue().equals(valueBox.getValue())) {
-                        Taint newTaint = new Taint(t.getSource(), leftOp);
+                        Taint newTaint = new Taint(unit, leftOp);
                         t.addSuccessor(newTaint);
                         out.add(newTaint);
                     }
+                }
+                if (t.getValue().equals(leftOp)) {
+                    out.remove(t);
                 }
             }
 
@@ -52,6 +55,15 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                     out.add(newTaint);
                 }
             }
+        }
+
+        if (unit instanceof InvokeStmt) {
+        }
+
+        if (unit instanceof ReturnStmt) {
+        }
+
+        if (unit instanceof ReturnVoidStmt) {
         }
     }
 
@@ -77,7 +89,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     @Override
     protected void copy(Set<Taint> source, Set<Taint> dest) {
         for (Taint t : source) {
-            dest.add(new Taint(t.getSource(), t.getValue(), t.getSuccessors()));
+            dest.add(new Taint(t.getUnit(), t.getValue(), t.getSuccessors()));
         }
     }
 

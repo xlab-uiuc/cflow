@@ -8,26 +8,26 @@ import java.util.Set;
 
 public class Taint {
 
-    private Unit source;
+    private Unit unit;
     private Value value;
     private Set<Taint> successors;
 
-    public Taint(Unit source, Value value) {
-        this(source, value, new HashSet<>());
+    public Taint(Unit unit, Value value) {
+        this(unit, value, new HashSet<>());
     }
 
-    public Taint(Unit source, Value value, Set<Taint> successors) {
-        this.source = source;
+    public Taint(Unit unit, Value value, Set<Taint> successors) {
+        this.unit = unit;
         this.value = value;
         this.successors = successors;
     }
 
-    public Unit getSource() {
-        return source;
+    public Unit getUnit() {
+        return unit;
     }
 
-    public void setSource(Unit source) {
-        this.source = source;
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 
     public Value getValue() {
@@ -52,7 +52,7 @@ public class Taint {
 
     @Override
     public String toString() {
-        return source.toString() + ":" + value.toString();
+        return unit.toString() + ":" + value.toString();
     }
 
 }
