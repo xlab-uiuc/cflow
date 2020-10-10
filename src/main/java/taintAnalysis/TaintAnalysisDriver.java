@@ -40,7 +40,7 @@ public class TaintAnalysisDriver {
 
         ConfigInterface configInterface = new TestInterface();
         PackManager.v().getPack("jtp").add(
-                new Transform("jtp.taintanalysis", new IntraTaintAnalysis(configInterface)));
+                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
 
         soot.Main.main(sootArgs);
     }

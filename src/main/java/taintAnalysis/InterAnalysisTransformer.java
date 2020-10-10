@@ -4,9 +4,9 @@ import soot.SceneTransformer;
 
 import java.util.Map;
 
-public class InterTaintAnalysis extends SceneTransformer {
+public class InterAnalysisTransformer extends SceneTransformer {
 
-    public InterTaintAnalysis() {
+    public InterAnalysisTransformer() {
     }
 
     @Override

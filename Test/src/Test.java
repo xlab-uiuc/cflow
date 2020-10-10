@@ -38,31 +38,30 @@ public class Test {
 
     public void test3() {
         // Loops -- TODO: Infinite Loop!
-//        int a = source();
-//        for (int i = 0; i < 10; i++) {
-//            a = a + 10;
-//        }
-//        int b = a + 20;
-//        System.out.println(b);
+        int a = source();
+        int b = 0;
+        for (int i = 0; i < 10; i++) {
+            b = a + 10;
+            b = b + 15;
+        }
+        int c = b + 20;
+        System.out.println(c);
     }
 
     public void test4() {
-        // Loops -- TODO: Infinite Loop!
-//        int a = source();
-//        for (int i = 0; i < 10; i++) {
-//            a = a + 10;
-//        }
-//        int b = a + 20;
-//        System.out.println(b);
-    }
-
-    public void test5() {
         // Kill Taint
         int a = source();
         System.out.println(a);
         a = 20; // a's taint is killed
         int b = a; // b should not be tainted
         System.out.println(a);
+    }
+
+    public void test5() {
+        // Fields 1
+        i1 = source();
+        i2 = i1 + 10;
+        System.out.println(i2);
     }
 
     public void test6() {
