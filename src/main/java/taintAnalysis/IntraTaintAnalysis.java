@@ -42,12 +42,12 @@ public class IntraTaintAnalysis {
         Set<Taint> in = new HashSet<>();
         Set<Taint> out = new HashSet<>();
 
+        // Preprocessing: merge out from preds, skipping back edges
         for (Block pred : graph.getUnexceptionalPredsOf(block)) {
             if (dominatorsFinder.isDominatedBy(pred, block))
                 continue;
             in.addAll(blockTaintMap.get(pred));
         }
-
         for (Block pred : graph.getExceptionalPredsOf(block)) {
             if (dominatorsFinder.isDominatedBy(pred, block))
                 continue;
@@ -57,6 +57,18 @@ public class IntraTaintAnalysis {
         for (Unit unit : block) {
             visitUnit(in, unit, out);
             copy(out, in);
+        }
+
+        // Postprocessing: propagate results back along back edges
+        for (Block succ : graph.getSuccsOf(block)) {
+            if (dominatorsFinder.isDominatedBy(block, succ)) {
+                blockTaintMap.get(succ).addAll(out);
+            }
+        }
+        for (Block succ : graph.getExceptionalSuccsOf(block)) {
+            if (dominatorsFinder.isDominatedBy(block, succ)) {
+                blockTaintMap.get(succ).addAll(out);
+            }
         }
 
         blockTaintMap.put(block, out);
