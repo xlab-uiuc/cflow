@@ -9,7 +9,7 @@ import soot.toolkits.graph.SimpleDominatorsFinder;
 
 import java.util.*;
 
-public class IntraTaintAnalysis {
+    public class IntraTaintAnalysis {
 
     private final ExceptionalBlockGraph graph;
     private final SimpleDominatorsFinder<Block> dominatorsFinder;
@@ -85,7 +85,6 @@ public class IntraTaintAnalysis {
 
     private void visitAssign(Set<Taint> in, AssignStmt stmt, Set<Taint> out) {
         Value leftOp = stmt.getLeftOp();
-
         if (stmt.containsInvokeExpr()) {
             InvokeExpr invoke = stmt.getInvokeExpr();
             if (configInterface.isGetter(invoke)) {
