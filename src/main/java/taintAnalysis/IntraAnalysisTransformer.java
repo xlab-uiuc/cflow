@@ -4,6 +4,7 @@ import configInterface.ConfigInterface;
 import soot.Body;
 import soot.BodyTransformer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +12,11 @@ public class IntraAnalysisTransformer extends BodyTransformer {
 
     private ConfigInterface configInterface;
 
+    private List<List<Taint>> sources;
+
     public IntraAnalysisTransformer(ConfigInterface configInterface) {
         this.configInterface = configInterface;
+        sources = new ArrayList<>();
     }
 
     @Override
@@ -20,10 +24,16 @@ public class IntraAnalysisTransformer extends BodyTransformer {
         IntraTaintAnalysis analysis = new IntraTaintAnalysis(b, configInterface);
         analysis.doAnalysis();
         List<Taint> lst = analysis.getSources();
+        sources.add(lst);
+        System.out.println(lst.size());
         for (Taint source : lst) {
             System.out.println("source");
             dfs(source, 0);
         }
+    }
+
+    public List<List<Taint>> getSources() {
+        return this.sources;
     }
 
     private void dfs(Taint t, int depth) {

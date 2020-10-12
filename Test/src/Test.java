@@ -51,7 +51,6 @@ public class Test {
     public void test4() {
         // Kill Taint
         int a = source();
-        System.out.println(a);
         a = 20; // a's taint is killed
         int b = a; // b should not be tainted
         System.out.println(a);
@@ -82,5 +81,13 @@ public class Test {
         book1 = book2;
         i1 = book1.a; // i1 should not be tainted
         System.out.println(i1);
+    }
+
+    public void test8() {
+        // multiple sources
+        int a = source();
+        int b = source();
+        System.out.println(a);
+        System.out.println(b);
     }
 }

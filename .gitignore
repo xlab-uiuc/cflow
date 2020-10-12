@@ -43,3 +43,9 @@ tmp.txt
 
 # sootOutput
 sootOutput/
+
+# Test
+*.txt
+*.class
+*.jar
+.idea
