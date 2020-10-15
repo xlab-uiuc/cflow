@@ -37,7 +37,7 @@ public class Test {
     }
 
     public void test3() {
-        // Loops -- TODO: Infinite Loop!
+        // Loops
         int a = source();
         int b = 0;
         for (int i = 0; i < 10; i++) {
@@ -53,7 +53,7 @@ public class Test {
         int a = source();
         a = 20; // a's taint is killed
         int b = a; // b should not be tainted
-        System.out.println(a);
+        System.out.println(b);
     }
 
     public void test5() {
@@ -84,10 +84,15 @@ public class Test {
     }
 
     public void test8() {
-        // multiple sources
+        // Multiple sources
         int a = source();
         int b = source();
         System.out.println(a);
         System.out.println(b);
+    }
+
+    public void test9(int a) {
+        // Inter-procedural, runs after test5
+        System.out.println(a);
     }
 }

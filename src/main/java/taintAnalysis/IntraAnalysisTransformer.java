@@ -21,7 +21,7 @@ public class IntraAnalysisTransformer extends BodyTransformer {
 
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
-        IntraTaintAnalysis analysis = new IntraTaintAnalysis(b, configInterface);
+        TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface);
         analysis.doAnalysis();
         List<Taint> lst = analysis.getSources();
         sources.add(lst);

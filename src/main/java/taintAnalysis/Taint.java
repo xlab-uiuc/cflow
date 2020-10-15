@@ -7,6 +7,7 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class Taint {
@@ -82,6 +83,23 @@ public class Taint {
     @Override
     public String toString() {
         return value + " in " + stmt + " in method " + method;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Taint taint = (Taint) o;
+        return Objects.equals(value, taint.value) &&
+                Objects.equals(base, taint.base) &&
+                Objects.equals(field, taint.field) &&
+                Objects.equals(stmt, taint.stmt) &&
+                Objects.equals(method, taint.method);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value, base, field, stmt, method);
     }
 
 }
