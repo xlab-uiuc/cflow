@@ -42,34 +42,55 @@ import java.util.*;
         Set<Taint> in = new HashSet<>();
         Set<Taint> out = new HashSet<>();
 
-        // Preprocessing: merge out from preds, skipping back edges
-        for (Block pred : graph.getUnexceptionalPredsOf(block)) {
-            if (dominatorsFinder.isDominatedBy(pred, block))
-                continue;
-            in.addAll(blockTaintMap.get(pred));
+        try {
+            // Preprocessing: merge out from preds, skipping back edges
+            for (Block pred : graph.getUnexceptionalPredsOf(block)) {
+                if (dominatorsFinder.isDominatedBy(pred, block))
+                    continue;
+                in.addAll(blockTaintMap.get(pred));
+            }
+            for (Block pred : graph.getExceptionalPredsOf(block)) {
+                if (dominatorsFinder.isDominatedBy(pred, block))
+                    continue;
+                in.addAll(blockTaintMap.get(pred));
+            }
+        } catch (Exception e) {
+            System.out.println("#####\npred not in blockTaintMap");
+            System.out.println(block.toString());
+            e.printStackTrace();
+            System.exit(0);
         }
-        for (Block pred : graph.getExceptionalPredsOf(block)) {
-            if (dominatorsFinder.isDominatedBy(pred, block))
-                continue;
-            in.addAll(blockTaintMap.get(pred));
-        }
+
 
         for (Unit unit : block) {
             visitUnit(in, unit, out);
             copy(out, in);
         }
 
-        // Postprocessing: propagate results back along back edges
-        for (Block succ : graph.getSuccsOf(block)) {
-            if (dominatorsFinder.isDominatedBy(block, succ)) {
-                blockTaintMap.get(succ).addAll(out);
+        try {
+            // Postprocessing: propagate results back along back edges
+            for (Block succ : graph.getSuccsOf(block)) {
+                if (dominatorsFinder.isDominatedBy(block, succ)) {
+                    System.out.println("succ: " + succ.toString());
+                    System.out.println("succ body method: " + succ.getBody().getMethod().toString());
+                    blockTaintMap.get(succ).addAll(out);
+                }
             }
-        }
-        for (Block succ : graph.getExceptionalSuccsOf(block)) {
-            if (dominatorsFinder.isDominatedBy(block, succ)) {
-                blockTaintMap.get(succ).addAll(out);
+            for (Block succ : graph.getExceptionalSuccsOf(block)) {
+                if (dominatorsFinder.isDominatedBy(block, succ)) {
+                    System.out.println("succ: " + succ.toString());
+                    System.out.println("succ body method: " + succ.getBody().getMethod().toString());
+                    blockTaintMap.get(succ).addAll(out);
+                }
             }
+        } catch (Exception e) {
+            System.out.println("#####\nsucc not in blockTaintMap");
+            System.out.println(block.toString());
+            System.out.println("block body method: " + block.getBody().getMethod().toString());
+            e.printStackTrace();
+            System.exit(0);
         }
+
 
         blockTaintMap.put(block, out);
     }

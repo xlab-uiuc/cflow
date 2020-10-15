@@ -80,7 +80,11 @@ public class TaintAnalysisDriver {
         PackManager.v().getPack("jtp").add(
                 new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
 
-        soot.Main.main(sootArgs);
+        try {
+            soot.Main.main(sootArgs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

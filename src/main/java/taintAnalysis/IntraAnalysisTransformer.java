@@ -25,7 +25,6 @@ public class IntraAnalysisTransformer extends BodyTransformer {
         analysis.doAnalysis();
         List<Taint> lst = analysis.getSources();
         sources.add(lst);
-        System.out.println(lst.size());
         for (Taint source : lst) {
             System.out.println("source");
             dfs(source, 0);
