@@ -3,7 +3,6 @@ package taintAnalysis;
 import configInterface.ConfigInterface;
 import configInterface.HadoopInterface;
 import configInterface.TestInterface;
-import fj.data.hlist.HPre;
 import soot.PackManager;
 import soot.Transform;
 
@@ -17,7 +16,7 @@ public class TaintAnalysisDriver {
 
     public List<List<Taint>> run() {
         List<String> srcPaths = new ArrayList<>();
-        srcPaths.add("Test.jar");
+        srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
 
         String classPath = String.join(":", srcPaths);
         String[] initArgs = {
@@ -82,7 +81,6 @@ public class TaintAnalysisDriver {
 
         soot.Main.main(sootArgs);
     }
-
 
 }
 
