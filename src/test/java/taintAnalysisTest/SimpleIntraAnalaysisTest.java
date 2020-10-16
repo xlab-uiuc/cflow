@@ -13,10 +13,10 @@ import java.io.*;
 import java.util.List;
 
 
-public class SimpleIntraAnalaysisTest {
+public class SimpleIntraAnalaysisTest extends TaintAnalysisTest {
 
     @Test
-    public void testIntraAnalysis() throws IOException {
+    public void testIntraAnalysisSimpleTest() throws IOException {
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
         List<List<Taint>> results = driver.run();
         for (List<Taint> result : results) {
@@ -34,13 +34,5 @@ public class SimpleIntraAnalaysisTest {
         }
     }
 
-    private void dfs(Taint t, int depth) {
-        for (int i = 0; i < depth; i++) {
-            System.out.print("-");
-        }
-        System.out.println(t);
-        for (Taint succ : t.getSuccessors()) {
-            dfs(succ, depth + 1);
-        }
-    }
+
 }

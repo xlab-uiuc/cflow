@@ -24,11 +24,12 @@ public class IntraAnalysisTransformer extends BodyTransformer {
         TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface);
         analysis.doAnalysis();
         List<Taint> lst = analysis.getSources();
-        sources.add(lst);
-        for (Taint source : lst) {
-            System.out.println("source");
-            dfs(source, 0);
-        }
+        if (lst.size() > 0)
+            sources.add(lst);
+//        for (Taint source : lst) {
+//            System.out.println("source");
+//            dfs(source, 0);
+//        }
     }
 
     public List<List<Taint>> getSources() {

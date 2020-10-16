@@ -51,7 +51,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
 
 //        logger.info("Analyzing method {}", body.getMethod());
-        System.out.println(body.getMethod());
+//        System.out.println(body.getMethod());
     }
 
     public boolean isChanged() {

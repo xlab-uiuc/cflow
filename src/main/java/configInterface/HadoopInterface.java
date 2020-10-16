@@ -17,7 +17,7 @@ public class HadoopInterface implements ConfigInterface {
         SootMethod callee = iexpr.getMethod();
         if (isSubClass(callee.getDeclaringClass()) &&
                 callee.getName().startsWith("get")) {
-            System.out.println(callee.getName());
+//            System.out.println(callee.getName());
             List<Value> args = iexpr.getArgs();
             if (args.size() > 0 && args.get(0) instanceof StringConstant) {
                 return true;

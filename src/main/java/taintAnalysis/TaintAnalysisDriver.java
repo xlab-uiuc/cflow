@@ -49,7 +49,7 @@ public class TaintAnalysisDriver {
         return transformer.getSources();
     }
 
-    public void runHadoop() {
+    public List<List<Taint>> runHadoop() {
         String hadoopJar = "app/hadoop-3.3.0/share/hadoop/common/hadoop-common-3.3.0.jar";
         List<String> srcPaths = new ArrayList<>();
         srcPaths.add(hadoopJar);
@@ -77,13 +77,16 @@ public class TaintAnalysisDriver {
 
         ConfigInterface configInterface = new HadoopInterface();
         PackManager.v().getPack("jtp").add(
-                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
+                new Transform("jtp.hadooptaintanalysis", new IntraAnalysisTransformer(configInterface)));
 
         try {
             soot.Main.main(sootArgs);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        IntraAnalysisTransformer transformer = (IntraAnalysisTransformer) PackManager.v().getPack("jtp").get("jtp.hadooptaintanalysis").getTransformer();
+        return transformer.getSources();
     }
 
 }
