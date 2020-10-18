@@ -31,7 +31,7 @@ public class SimpleIntraAnalaysisTest extends TaintAnalysisTest {
                     Assert.assertEquals(0, result.size());
                 } else if (method.contains("test8")) {
                     Assert.assertEquals(2, result.size());
-                } else {
+                } else if (!method.contains("callee")) {
                     Assert.assertEquals(1, result.size());
                 }
             }
@@ -39,15 +39,31 @@ public class SimpleIntraAnalaysisTest extends TaintAnalysisTest {
 
         Map<SootMethod, List<Set<Taint>>> methodSummary = transformer.getMethodSummary();
         for (SootMethod method : methodSummary.keySet()) {
-            if (method.toString().contains("<Test: void callee(Book,Book)>")) {
+            if (method.toString().contains("<Test: void callee(Book,Book,int)>")) {
+                System.out.println("[TEST]> testing <Test: void callee(Book,Book,int)>");
                 // test if taint on parameter is recorded
                 List<Set<Taint>> taintList = methodSummary.get(method);
-                Assert.assertEquals(taintList.size(), 3); // callee function records for (@parameter0, @parameter1, @this)
-                Assert.assertEquals(taintList.get(1).size() > 0, true); // book 2 (@parameter1) shoud be tainted
+                Assert.assertEquals(4, taintList.size()); // callee function records for (@parameter0, @parameter1, @parameter2, @this)
+                Assert.assertEquals(true, taintList.get(0).size() > 0); // book1 (@parameter0) should be tainted
+                for (Taint t : taintList.get(0)) {
+                    System.out.println(t.toString());
+                }
+                Assert.assertEquals(true, taintList.get(1).size() > 0); // book2 (@parameter1) should be tainted
                 for (Taint t : taintList.get(1)) {
                     System.out.println(t.toString());
                 }
-                Assert.assertEquals(taintList.get(2).size(), 0); // @this is not tainted
+                Assert.assertEquals(true, taintList.get(3).size() > 0); // @this should be tainted as well
+                for (Taint t : taintList.get(3)) {
+                    System.out.println(t.toString());
+                }
+            } else if (method.toString().contains("<Test: Book callee2(Book,Book,int)>")) {
+                System.out.println("[TEST]> testing <Test: Book callee2(Book,Book,int)>");
+                List<Set<Taint>> taintList = methodSummary.get(method);
+                Assert.assertEquals(5, taintList.size()); // callee function records for (@parameter0, @parameter1, @parameter2, @this, return value)
+                Assert.assertEquals(true, taintList.get(4).size() > 0); // return value should be tainted
+                for (Taint t : taintList.get(4)) {
+                    System.out.println(t.toString());
+                }
             }
         }
     }

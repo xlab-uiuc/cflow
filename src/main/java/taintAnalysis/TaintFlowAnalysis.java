@@ -1,6 +1,7 @@
 package taintAnalysis;
 
 import configInterface.ConfigInterface;
+import configInterface.ConfigInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
@@ -89,6 +90,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         out.addAll(in);
 
         // initialize Set<Taint> for each parameter of the method
+        System.out.println("[flowThrough]> flow through " + unit.toString());
         if (!methodSummary.containsKey(method)) {
             methodSummary.put(method, new ArrayList<Set<Taint>>());
             List<Value> params = body.getParameterRefs();
@@ -96,6 +98,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 System.out.println(p.toString());
                 methodSummary.get(method).add(new HashSet<>());
             }
+            System.out.println("[flowThrough]> flow through initial method list size: " + Integer.toString(methodSummary.get(method).size()));
         }
 
         if (unit instanceof AssignStmt) {
@@ -169,33 +172,52 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void visitReturn(Set<Taint> in, ReturnStmt stmt, Set<Taint> out) {
         out.clear();
+        System.out.println(stmt.toString());
         // Use body.getParameterLocals() to get the list of Locals representing the parameters (on LHS of IdentityStmt)
         List<Local> paramLocals = body.getParameterLocals();
+        Map<Local, Integer> paramIdx = new HashMap<>();
+        for (int i = 0; i < paramLocals.size(); i++) {
+            Local l = paramLocals.get(i);
+            paramIdx.put(l, i);
+        }
 
-        // Use:
-//        if (!body.getMethod().isStatic()) {
-//            System.out.println("> @this: " + body.getThisLocal().toString());
-//        }
-        // to get the Local representing @this
+        // get local representing @this and initialize corresponding Set<Taint>
+        if (!body.getMethod().isStatic() && methodSummary.get(method).size() == paramLocals.size()) {
+            Local this_ = body.getThisLocal();
+            System.out.println("[RETURN VOID]> @this: " + this_.toString());
+            methodSummary.get(method).add(new HashSet<>());
+        }
+
+        // initialize corresponding Set<Taint> for return value
+        Value returnValue = stmt.getOp();
+        if (methodSummary.get(method).size() == paramLocals.size() + 1) {
+            System.out.println("[RETURN VOID]> this: " + returnValue.toString());
+            methodSummary.get(method).add(new HashSet<>());
+        }
 
         // Use Taint t; Value v; t.taints(v) to check whether the taint abstraction taints value v
+        int listSize = methodSummary.get(method).size();
         for (Taint t : in) {
-//            System.out.println("> in Taint: " + t.toString());
-            for (ValueBox box : stmt.getUseAndDefBoxes()) {
-                Value value = box.getValue();
-                System.out.println("> value: " + value.toString());
-                if (t.taints(value)) {
-                    Taint newTaint;
-                    if (stmtTaintCache.containsKey(stmt)) {
-                        newTaint = stmtTaintCache.get(stmt);
-                    } else {
-                        changed = true;
-                        newTaint = new Taint(value, stmt, method);
-                        System.out.println("> added new Taint: " + newTaint.toString());
-                        t.addSuccessor(newTaint);
-                        out.add(newTaint);
-                    }
+//            System.out.println("[RETURN VOID]> in Taint: " + t.toString());
+            for (Local l : paramLocals) {
+//                System.out.println("[RETURN VOID]> Taint: " + t.getBase() + " param: " + l.toString());
+                if (t.taints(l) || t.getBase() == l) {
+                    System.out.println("[RETURN VOID]> in Taint (" + t.toString() + ") taints " + l.toString());
+                    int index = paramIdx.get(l);
+                    methodSummary.get(method).get(index).add(t);
                 }
+            }
+
+            // check if t taints @this
+            if (!body.getMethod().isStatic()) {
+                Local this_ = body.getThisLocal();
+                if (t.taints(this_) || t.getBase() == this_)
+                    methodSummary.get(method).get(listSize - 2).add(t);
+            }
+
+            // check if t taints return value
+            if (t.taints(returnValue) || t.getBase() == returnValue) {
+                methodSummary.get(method).get(listSize - 1).add(t);
             }
         }
     }
@@ -210,18 +232,17 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             Local l = paramLocals.get(i);
             paramIdx.put(l, i);
         }
-//        for (Local l : paramLocals) {
-//            System.out.println("[RETURN VOID]> Local: " + l.toString());
-//        }
 
         // get local representing @this and initialize corresponding Set<Taint>:
-        if (!body.getMethod().isStatic()) {
+        // only add @this to methodSummary when seeing the first return
+        if (!body.getMethod().isStatic() && methodSummary.get(method).size() == paramLocals.size()) {
             Local this_ = body.getThisLocal();
             System.out.println("[RETURN VOID]> @this: " + this_.toString());
             methodSummary.get(method).add(new HashSet<>());
         }
 
         // Use Taint t; Value v; t.taints(v) to check whether the taint abstraction taints value v
+        int listSize = methodSummary.get(method).size();
         for (Taint t : in) {
 //            System.out.println("[RETURN VOID]> in Taint: " + t.toString());
             for (Local l : paramLocals) {
@@ -232,7 +253,16 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                     methodSummary.get(method).get(index).add(t);
                 }
             }
+
+            // check if t taints @this
+            if (!body.getMethod().isStatic()) {
+                Local this_ = body.getThisLocal();
+                if (t.taints(this_) || t.getBase() == this_)
+                    methodSummary.get(method).get(listSize - 1).add(t);
+            }
         }
+
+        System.out.println("[RETURN VOID]> List<Set<Taint>> size: " + Integer.toString(methodSummary.get(method).size()));
     }
 
     @Override

@@ -24,10 +24,29 @@ public class Test {
         b.a = 5;
     }
 
-    private void callee(Book b1, Book b2) {
-        b2.a = source();
-//        sourceBook(b1);
-        return;
+    private void callee(Book b1, Book b2, int v) {
+        if (v > 1) {
+            b2.a = source();
+            i1 = b2.a;
+            return;
+        } else {
+            b1.a = source();
+            i1 = b1.a;
+            return;
+        }
+    }
+
+    public Book callee2(Book b1, Book b2, int v) {
+        Book book = new Book();
+        if (v > 1) {
+            b2.a = source();
+            book.a = b2.a;
+        } else {
+            b1.a = source();
+            book.a = b1.a;
+        }
+
+        return book;
     }
 
     public void test1() {
@@ -111,12 +130,13 @@ public class Test {
     }
 
     public void test10() {
-        // TODO: test visitReturn
+        // Test visitReturn and visitReturnVoid
         Book book1 = new Book();
         Book book2 = new Book();
-        callee(book1, book2);
+        int dummy = 0;
+        callee(book1, book2, dummy);
+        Book book3 = callee2(book1, book2, dummy);
         i1 = book1.a;
         System.out.println(i1);
-//        return i2;
     }
 }

@@ -25,7 +25,12 @@ public class IntraAnalysisTransformer extends BodyTransformer {
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
         TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface);
-        analysis.doAnalysis();
+        try {
+            analysis.doAnalysis();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
         List<Taint> lst = analysis.getSources();
         Map<SootMethod, List<Set<Taint>>> summary = analysis.getMethodSummary();
         if (lst.size() > 0)
