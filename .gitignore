@@ -49,3 +49,4 @@ sootOutput/
 *.class
 *.jar
 .idea
+resource/

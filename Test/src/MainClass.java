@@ -11,6 +11,7 @@ public class MainClass {
         main.test7();
         main.test8();
         main.test9(10);
+        main.test10();
     }
 
 }

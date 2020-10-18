@@ -16,6 +16,20 @@ public class Test {
         return 7;
     }
 
+    private Book sourceBook() {
+        return new Book(1, 1);
+    }
+
+    private void sourceBook(Book b) {
+        b.a = 5;
+    }
+
+    private void callee(Book b1, Book b2) {
+        b2.a = source();
+//        sourceBook(b1);
+        return;
+    }
+
     public void test1() {
         // Trivial case
         int a = source();
@@ -70,7 +84,7 @@ public class Test {
         book1.a = source();
         book2 = book1;
         i1 = book2.a; // i1 should be tainted
-        System.out.println(i1);
+//        System.out.println(i1);
     }
 
     public void test7() {
@@ -94,5 +108,15 @@ public class Test {
     public void test9(int a) {
         // Inter-procedural, runs after test5
         System.out.println(a);
+    }
+
+    public void test10() {
+        // TODO: test visitReturn
+        Book book1 = new Book();
+        Book book2 = new Book();
+        callee(book1, book2);
+        i1 = book1.a;
+        System.out.println(i1);
+//        return i2;
     }
 }

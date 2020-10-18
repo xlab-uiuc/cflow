@@ -91,7 +91,8 @@ public class Main {
         }
 
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        driver.runHadoop();
+        driver.run();
+//        driver.runHadoop();
     }
 }
 //

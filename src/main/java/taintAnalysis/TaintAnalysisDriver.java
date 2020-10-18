@@ -14,8 +14,9 @@ public class TaintAnalysisDriver {
     public TaintAnalysisDriver() {
     }
 
-    public List<List<Taint>> run() {
+    public IntraAnalysisTransformer run() {
         List<String> srcPaths = new ArrayList<>();
+        System.out.println("running Test.jar");
         srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
 
         String classPath = String.join(":", srcPaths);
@@ -46,7 +47,7 @@ public class TaintAnalysisDriver {
         soot.Main.main(sootArgs);
 
         IntraAnalysisTransformer transformer = (IntraAnalysisTransformer) PackManager.v().getPack("jtp").get("jtp.taintanalysis").getTransformer();
-        return transformer.getSources();
+        return transformer;
     }
 
     public List<List<Taint>> runHadoop() {

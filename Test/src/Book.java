@@ -1,4 +1,14 @@
 public class Book {
-    int a = 0;
-    int b = 0;
+    int a;
+    int b;
+
+    Book() {
+        a = 0;
+        b = 0;
+    }
+
+    Book(int a_, int b_) {
+        a = a_;
+        b = b_;
+    }
 }

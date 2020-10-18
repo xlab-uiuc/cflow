@@ -9,7 +9,9 @@ public class TestInterface implements ConfigInterface {
     @Override
     public boolean isGetter(InvokeExpr iexpr) {
         SootMethod callee = iexpr.getMethod();
-        if (callee.getName().equals("source")) {
+        if (callee.getName().contains("source")) {
+            System.out.println("> In isGetter function");
+            System.out.println(callee.toString());
             return true;
         }
         return false;
