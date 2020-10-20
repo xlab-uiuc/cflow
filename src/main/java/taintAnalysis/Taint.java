@@ -12,6 +12,8 @@ import java.util.Set;
 
 public class Taint {
 
+    private static final Taint emptyTaint = new Taint(null, null);
+
     private final Value value;
     private final Value base;
     private final SootField field;
@@ -43,6 +45,32 @@ public class Taint {
         }
     }
 
+    public static Taint getEmptyTaint() {
+        return emptyTaint;
+    }
+
+    public boolean isEmpty() {
+        return value == null;
+    }
+
+    public boolean taints(Value v) {
+        if (isEmpty()) {
+            return false;
+        }
+
+        if (v instanceof InstanceFieldRef) {
+            if (base == null || field == null) return false;
+            InstanceFieldRef fieldRef = (InstanceFieldRef) v;
+            return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
+        }
+
+        return value.equivTo(v) || (base != null && base.equivTo(v));
+    }
+
+    public Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
+        return new Taint(v, stmt, method);
+    }
+
     public Value getValue() {
         return value;
     }
@@ -71,17 +99,11 @@ public class Taint {
         this.successors.add(successor);
     }
 
-    public boolean taints(Value v) {
-        if (v instanceof InstanceFieldRef) {
-            if (base == null || field == null) return false;
-            InstanceFieldRef fieldRef = (InstanceFieldRef) v;
-            return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
-        }
-        return value.equivTo(v);
-    }
-
     @Override
     public String toString() {
+        if (isEmpty()) {
+            return "Empty taint";
+        }
         return value + " in " + stmt + " in method " + method;
     }
 

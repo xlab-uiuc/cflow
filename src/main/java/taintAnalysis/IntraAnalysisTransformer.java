@@ -32,11 +32,11 @@ public class IntraAnalysisTransformer extends BodyTransformer {
             System.exit(1);
         }
         List<Taint> lst = analysis.getSources();
-        Map<SootMethod, List<Set<Taint>>> summary = analysis.getMethodSummary();
+//        Map<SootMethod, List<Set<Taint>>> summary = analysis.getMethodSummary();
         if (lst.size() > 0)
             sources.add(lst);
-        if (summary.size() > 0)
-            methodSummary.putAll(summary);
+//        if (summary.size() > 0)
+//            methodSummary.putAll(summary);
 
         for (Taint source : lst) {
             System.out.println("source");

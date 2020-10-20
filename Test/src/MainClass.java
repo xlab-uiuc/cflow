@@ -10,7 +10,8 @@ public class MainClass {
         main.test6();
         main.test7();
         main.test8();
-        main.test9(10);
+        int c = main.test9();
+        System.out.println(c);
         main.test10();
     }
 

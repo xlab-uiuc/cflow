@@ -124,9 +124,11 @@ public class Test {
         System.out.println(b);
     }
 
-    public void test9(int a) {
+    public int test9() {
         // Inter-procedural, runs after test5
-        System.out.println(a);
+        int a = source();
+        int b = a + 10;
+        return b;
     }
 
     public void test10() {

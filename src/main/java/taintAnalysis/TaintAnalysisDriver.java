@@ -14,6 +14,42 @@ public class TaintAnalysisDriver {
     public TaintAnalysisDriver() {
     }
 
+    public void runInter() {
+        List<String> srcPaths = new ArrayList<>();
+        System.out.println("running Test.jar");
+        srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
+
+        String classPath = String.join(":", srcPaths);
+        String[] initArgs = {
+                // Input Options
+                "-cp", classPath,
+                "-pp",
+                "-allow-phantom-refs",
+                "-no-bodies-for-excluded",
+
+                // Phase Options
+                "-w",
+
+                // Output Options
+                "-f", "J",
+        };
+
+        String[] sootArgs = new String[initArgs.length + 2 * srcPaths.size()];
+        for (int i = 0; i < initArgs.length; i++) {
+            sootArgs[i] = initArgs[i];
+        }
+        for (int i = 0; i < srcPaths.size(); i++) {
+            sootArgs[initArgs.length + 2*i] = "-process-dir";
+            sootArgs[initArgs.length + 2*i + 1] = srcPaths.get(i);
+        }
+
+        ConfigInterface configInterface = new TestInterface();
+        PackManager.v().getPack("wjtp").add(
+                new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(configInterface)));
+
+        soot.Main.main(sootArgs);
+    }
+
     public IntraAnalysisTransformer run() {
         List<String> srcPaths = new ArrayList<>();
         System.out.println("running Test.jar");
