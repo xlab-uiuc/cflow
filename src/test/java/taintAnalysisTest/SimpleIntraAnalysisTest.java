@@ -63,5 +63,5 @@ public class SimpleIntraAnalysisTest extends TaintAnalysisTest {
             }
         }
     }
-    
+
 }

@@ -109,6 +109,15 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void visitAssign(Set<Taint> in, AssignStmt stmt, Set<Taint> out) {
         Value leftOp = stmt.getLeftOp();
+
+        // KILL
+        for (Taint t : in) {
+            if (t.taints(leftOp)) {
+                out.remove(t);
+            }
+        }
+
+        // GEN
         if (stmt.containsInvokeExpr()) {
             InvokeExpr invoke = stmt.getInvokeExpr();
             if (configInterface.isGetter(invoke)) {
@@ -121,21 +130,16 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                     currTaintCache.put(newTaint, newTaint);
                 }
                 out.add(newTaint);
+                System.out.println("[ASSIGN]> add newTaint: " + newTaint.toString());
             } else {
                 visitInvoke(in, stmt, stmt.getInvokeExpr(), leftOp, out);
             }
         } else {
-            // KILL
             for (Taint t : in) {
-                if (t.taints(leftOp)) {
-                    out.remove(t);
-                }
-            }
-
-            // GEN
-            for (Taint t : in) {
+                System.out.println(t);
                 for (ValueBox box : stmt.getUseBoxes()) {
                     Value value = box.getValue();
+                    System.out.println(">>" + value);
                     if (t.taints(value)) {
                         Taint newTaint = new Taint(leftOp, stmt, method);
                         if (currTaintCache.containsKey(newTaint)) {
@@ -182,7 +186,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         // Generate callee entry taints for this invocation
         for (Taint t : in) {
             // Process base object
-            if (base != null && t.taints(base)) {
+            if (base != null && t.associatesWith(base)) {
                 out.remove(t);
                 genCalleeEntryTaints(t, calleeThisLocal, stmt, calleeTaintCache, calleeEntryTaints);
             }
@@ -190,7 +194,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             // Process parameters
             for (int i = 0; i < invoke.getArgCount(); i++) {
                 Value arg = invoke.getArg(i);
-                if (t.taints(arg)) {
+                if (t.associatesWith(arg)) {
                     out.remove(t);
                     Local calleeParam = calleeBody.getParameterLocal(i);
                     genCalleeEntryTaints(t, calleeParam, stmt, calleeTaintCache, calleeEntryTaints);
@@ -280,12 +284,12 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         List<Set<Taint>> summary = currMethodSummary.get(entryTaints);
         for (Taint t : in) {
             // Check if t taints base object
-            if (thiz != null && t.taints(thiz)) {
+            if (thiz != null && t.associatesWith(thiz)) {
                 summary.get(0).add(t);
             }
 
             // Check if t taints return value
-            if (retVal != null && t.taints(retVal)) {
+            if (retVal != null && t.associatesWith(retVal)) {
                 summary.get(1).add(t);
             }
 
@@ -293,7 +297,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (int i = 0; i < paramLocals.size(); i++) {
                 Local paramLocal = paramLocals.get(i);
                 // TODO: check if the param is basic type (we should not taint them in that case)
-                if (t.taints(paramLocal)) {
+                if (t.associatesWith(paramLocal)) {
                     summary.get(2 + i).add(t);
                 }
             }

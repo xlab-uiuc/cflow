@@ -52,6 +52,7 @@ public class Taint {
         this.successors = successors;
     }
 
+    // taints is field-sensitive
     public boolean taints(Value v) {
         if (v instanceof InstanceFieldRef) {
             if (base == null || field == null) return false;
@@ -59,11 +60,16 @@ public class Taint {
             return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
         }
 
-        return value.equivTo(v) || (base != null && base.equivTo(v));
+        return value.equivTo(v);
+    }
+
+    // associatesWith is field-insensitive
+    public boolean associatesWith(Value v) {
+        return taints(v) || (base != null && base.equivTo(v));
     }
 
     public Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
-        return new Taint(v, base, field, stmt, method, new HashSet<>());
+        return new Taint(v, v, field, stmt, method, new HashSet<>());
     }
 
     public Value getValue() {

@@ -103,7 +103,7 @@ public class Test {
         book1.a = source();
         book2 = book1;
         i1 = book2.a; // i1 should be tainted
-//        System.out.println(i1);
+        System.out.println(i1);
     }
 
     public void test7() {
