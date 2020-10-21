@@ -1,8 +1,6 @@
 package taintAnalysis;
 
-import soot.SootField;
-import soot.SootMethod;
-import soot.Value;
+import soot.*;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
 
@@ -54,12 +52,19 @@ public class Taint {
 
     // taints is field-sensitive
     public boolean taints(Value v) {
+        // Match exact field if v is a ref to instance field
         if (v instanceof InstanceFieldRef) {
             if (base == null || field == null) return false;
             InstanceFieldRef fieldRef = (InstanceFieldRef) v;
             return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
         }
 
+        // If curr taint is on a exact field and v is not a ref to instance field, return false
+        if (base != null) {
+            return false;
+        }
+
+        // Otherwise, compare the value
         return value.equivTo(v);
     }
 
