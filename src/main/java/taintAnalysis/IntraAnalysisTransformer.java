@@ -1,55 +1,59 @@
 package taintAnalysis;
 
 import configInterface.ConfigInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import soot.Body;
 import soot.BodyTransformer;
-import soot.SootClass;
 import soot.SootMethod;
 
 import java.util.*;
 
 public class IntraAnalysisTransformer extends BodyTransformer {
 
-    private ConfigInterface configInterface;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private List<List<Taint>> sources;
-
-    private Map<SootMethod, List<Set<Taint>>> methodSummary;
+    private final ConfigInterface configInterface;
+    private final List<List<Taint>> sourceLists;
+    private final Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> methodSummary;
+    private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
 
     public IntraAnalysisTransformer(ConfigInterface configInterface) {
         this.configInterface = configInterface;
-        sources = new ArrayList<>();
-        methodSummary = new HashMap<>();
+        this.sourceLists = new ArrayList<>();
+        this.methodSummary = new HashMap<>();
+        this.methodTaintCache = new HashMap<>();
+    }
+
+    public ConfigInterface getConfigInterface() {
+        return configInterface;
+    }
+
+    public List<List<Taint>> getSourceLists() {
+        return sourceLists;
+    }
+
+    public Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> getMethodSummary() {
+        return methodSummary;
+    }
+
+    public Map<SootMethod, Map<Taint, Taint>> getMethodTaintCache() {
+        return methodTaintCache;
     }
 
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
-        TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface);
-        try {
-            analysis.doAnalysis();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        TaintFlowAnalysis analysis =
+                new TaintFlowAnalysis(b, configInterface, new HashSet<>(), methodSummary, methodTaintCache);
+        analysis.doAnalysis();
+
         List<Taint> lst = analysis.getSources();
-//        Map<SootMethod, List<Set<Taint>>> summary = analysis.getMethodSummary();
-        if (lst.size() > 0)
-            sources.add(lst);
-//        if (summary.size() > 0)
-//            methodSummary.putAll(summary);
+        sourceLists.add(lst);
 
         for (Taint source : lst) {
             System.out.println("source");
             dfs(source, 0);
         }
-    }
-
-    public List<List<Taint>> getSources() {
-        return this.sources;
-    }
-
-    public Map<SootMethod, List<Set<Taint>>> getMethodSummary() {
-        return methodSummary;
     }
 
     private void dfs(Taint t, int depth) {

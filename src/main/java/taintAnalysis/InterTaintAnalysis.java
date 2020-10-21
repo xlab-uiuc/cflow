@@ -2,6 +2,8 @@ package taintAnalysis;
 
 import configInterface.ConfigInterface;
 import configInterface.TestInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import soot.Body;
 import soot.Scene;
 import soot.SootClass;
@@ -10,6 +12,8 @@ import soot.SootMethod;
 import java.util.*;
 
 public class InterTaintAnalysis {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Scene scene;
     private final ConfigInterface configInterface;

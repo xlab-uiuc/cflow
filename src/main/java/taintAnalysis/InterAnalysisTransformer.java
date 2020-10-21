@@ -3,20 +3,38 @@ package taintAnalysis;
 import configInterface.ConfigInterface;
 import soot.Scene;
 import soot.SceneTransformer;
+import soot.SootMethod;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class InterAnalysisTransformer extends SceneTransformer {
 
-    private ConfigInterface configInterface;
+    private final InterTaintAnalysis analysis;
 
     public InterAnalysisTransformer(ConfigInterface configInterface) {
-        this.configInterface = configInterface;
+        this.analysis = new InterTaintAnalysis(Scene.v(), configInterface);
+    }
+
+    public ConfigInterface getConfigInterface() {
+        return analysis.getConfigInterface();
+    }
+
+    public List<Taint> getSources() {
+        return analysis.getSources();
+    }
+
+    public Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> getMethodSummary() {
+        return analysis.getMethodSummary();
+    }
+
+    public Map<SootMethod, Map<Taint, Taint>> getMethodTaintCache() {
+        return analysis.getMethodTaintCache();
     }
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
-        InterTaintAnalysis analysis = new InterTaintAnalysis(Scene.v(), configInterface);
         analysis.doAnalysis();
 
         for (Taint source : analysis.getSources()) {

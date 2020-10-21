@@ -3,6 +3,8 @@ package taintAnalysis;
 import configInterface.ConfigInterface;
 import configInterface.HadoopInterface;
 import configInterface.TestInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import soot.PackManager;
 import soot.Transform;
 
@@ -11,10 +13,49 @@ import java.util.List;
 
 public class TaintAnalysisDriver {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public TaintAnalysisDriver() {
     }
 
-    public void runInter() {
+    public IntraAnalysisTransformer runIntraTaintAnalysis() {
+        List<String> srcPaths = new ArrayList<>();
+        System.out.println("running Test.jar");
+        srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
+
+        String classPath = String.join(":", srcPaths);
+        String[] initArgs = {
+                // Input Options
+                "-cp", classPath,
+                "-pp",
+                "-allow-phantom-refs",
+                "-no-bodies-for-excluded",
+
+                // Output Options
+                "-f", "J",
+        };
+
+        String[] sootArgs = new String[initArgs.length + 2 * srcPaths.size()];
+        for (int i = 0; i < initArgs.length; i++) {
+            sootArgs[i] = initArgs[i];
+        }
+        for (int i = 0; i < srcPaths.size(); i++) {
+            sootArgs[initArgs.length + 2*i] = "-process-dir";
+            sootArgs[initArgs.length + 2*i + 1] = srcPaths.get(i);
+        }
+
+        ConfigInterface configInterface = new TestInterface();
+        PackManager.v().getPack("jtp").add(
+                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
+
+        soot.Main.main(sootArgs);
+
+        IntraAnalysisTransformer transformer = (IntraAnalysisTransformer)
+                PackManager.v().getPack("jtp").get("jtp.taintanalysis").getTransformer();
+        return transformer;
+    }
+
+    public InterAnalysisTransformer runInterTaintAnalysis() {
         List<String> srcPaths = new ArrayList<>();
         System.out.println("running Test.jar");
         srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
@@ -48,41 +89,9 @@ public class TaintAnalysisDriver {
                 new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(configInterface)));
 
         soot.Main.main(sootArgs);
-    }
 
-    public IntraAnalysisTransformer run() {
-        List<String> srcPaths = new ArrayList<>();
-        System.out.println("running Test.jar");
-        srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
-
-        String classPath = String.join(":", srcPaths);
-        String[] initArgs = {
-                // Input Options
-                "-cp", classPath,
-                "-pp",
-                "-allow-phantom-refs",
-                "-no-bodies-for-excluded",
-
-                // Output Options
-                "-f", "J",
-        };
-
-        String[] sootArgs = new String[initArgs.length + 2 * srcPaths.size()];
-        for (int i = 0; i < initArgs.length; i++) {
-            sootArgs[i] = initArgs[i];
-        }
-        for (int i = 0; i < srcPaths.size(); i++) {
-            sootArgs[initArgs.length + 2*i] = "-process-dir";
-            sootArgs[initArgs.length + 2*i + 1] = srcPaths.get(i);
-        }
-
-        ConfigInterface configInterface = new TestInterface();
-        PackManager.v().getPack("jtp").add(
-                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
-
-        soot.Main.main(sootArgs);
-
-        IntraAnalysisTransformer transformer = (IntraAnalysisTransformer) PackManager.v().getPack("jtp").get("jtp.taintanalysis").getTransformer();
+        InterAnalysisTransformer transformer = (InterAnalysisTransformer)
+                PackManager.v().getPack("wjtp").get("wjtp.taintanalysis").getTransformer();
         return transformer;
     }
 
@@ -123,7 +132,7 @@ public class TaintAnalysisDriver {
         }
 
         IntraAnalysisTransformer transformer = (IntraAnalysisTransformer) PackManager.v().getPack("jtp").get("jtp.hadooptaintanalysis").getTransformer();
-        return transformer.getSources();
+        return transformer.getSourceLists();
     }
 
 }

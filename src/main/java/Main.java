@@ -92,7 +92,7 @@ public class Main {
 
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
 //        driver.run();
-        driver.runInter();
+        driver.runInterTaintAnalysis();
 //        driver.runHadoop();
     }
 }
