@@ -12,8 +12,6 @@ import java.util.Set;
 
 public class Taint {
 
-    private static final Taint emptyTaint = new Taint(null, null);
-
     private final Value value;
     private final Value base;
     private final SootField field;
@@ -45,19 +43,16 @@ public class Taint {
         }
     }
 
-    public static Taint getEmptyTaint() {
-        return emptyTaint;
-    }
-
-    public boolean isEmpty() {
-        return value == null;
+    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors) {
+        this.value = value;
+        this.base = base;
+        this.field = field;
+        this.stmt = stmt;
+        this.method = method;
+        this.successors = successors;
     }
 
     public boolean taints(Value v) {
-        if (isEmpty()) {
-            return false;
-        }
-
         if (v instanceof InstanceFieldRef) {
             if (base == null || field == null) return false;
             InstanceFieldRef fieldRef = (InstanceFieldRef) v;
@@ -68,7 +63,7 @@ public class Taint {
     }
 
     public Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
-        return new Taint(v, stmt, method);
+        return new Taint(v, base, field, stmt, method, new HashSet<>());
     }
 
     public Value getValue() {
@@ -101,9 +96,6 @@ public class Taint {
 
     @Override
     public String toString() {
-        if (isEmpty()) {
-            return "Empty taint";
-        }
         return value + " in " + stmt + " in method " + method;
     }
 

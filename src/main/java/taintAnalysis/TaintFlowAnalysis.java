@@ -20,27 +20,27 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private final Body body;
     private final SootMethod method;
     private final ConfigInterface configInterface;
-    private final Taint entryTaint;
-    private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
-    private final Map<Taint, List<Set<Taint>>> currMethodSummary;
+    private final Set<Taint> entryTaints;
+    private final Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> methodSummary;
+    private final Map<Set<Taint>, List<Set<Taint>>> currMethodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
     private final Map<Taint, Taint> currTaintCache;
     private final List<Taint> sources;
 
     public TaintFlowAnalysis(Body body, ConfigInterface configInterface) {
-        this(body, configInterface, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>());
+        this(body, configInterface, new HashSet<>(), new HashMap<>(), new HashMap<>());
     }
 
     public TaintFlowAnalysis(Body body,
                              ConfigInterface configInterface,
-                             Taint entryTaint,
-                             Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary,
+                             Set<Taint> entryTaints,
+                             Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> methodSummary,
                              Map<SootMethod, Map<Taint, Taint>> methodTaintCache) {
         super(new ExceptionalUnitGraph(body));
         this.body = body;
         this.method = body.getMethod();
         this.configInterface = configInterface;
-        this.entryTaint = entryTaint;
+        this.entryTaints = entryTaints;
         this.methodSummary = methodSummary;
         this.methodTaintCache = methodTaintCache;
         this.sources = new ArrayList<>();
@@ -48,7 +48,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         // Sanity check
         assertNotNull(body);
         assertNotNull(configInterface);
-        assertNotNull(entryTaint);
+        assertNotNull(entryTaints);
         assertNotNull(methodSummary);
         assertNotNull(methodTaintCache);
 
@@ -58,14 +58,14 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         methodTaintCache.putIfAbsent(method, new HashMap<>());
         this.currTaintCache = methodTaintCache.get(method);
 
-        // Initialize the taint summary for current method with the input entry taint (if not done yet)
+        // Initialize the taint summary for current method with the input entry taints (if not done yet)
         // Summary list format: idx 0: (set of taints on) base, 1: retVal, 2+: parameters
-        if (this.currMethodSummary.get(entryTaint) == null) {
+        if (!this.currMethodSummary.containsKey(entryTaints)) {
             List<Set<Taint>> summary = new ArrayList<>();
             for (int i = 0; i < method.getParameterCount() + 2; i++) {
                 summary.add(new HashSet<>());
             }
-            this.currMethodSummary.put(entryTaint, summary);
+            this.currMethodSummary.put(entryTaints, summary);
         }
     }
 
@@ -162,27 +162,9 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
         // Initialize methodSummary and methodTaintCache for callee (if not done yet)
         methodSummary.putIfAbsent(callee, new HashMap<>());
-        Map<Taint, List<Set<Taint>>> calleeSummary = methodSummary.get(callee);
+        Map<Set<Taint>, List<Set<Taint>>> calleeSummary = methodSummary.get(callee);
         methodTaintCache.putIfAbsent(callee, new HashMap<>());
         Map<Taint, Taint> calleeTaintCache = methodTaintCache.get(callee);
-
-        // Initialize the empty taint summary for callee (if not done yet)
-        // Summary list format: idx 0: (set of taints on) base, 1: retVal, 2+: parameters
-        if (calleeSummary.isEmpty()) {
-            List<Set<Taint>> emptyTaintSummary = new ArrayList<>();
-            for (int i = 0; i < callee.getParameterCount() + 2; i++) {
-                emptyTaintSummary.add(new HashSet<>());
-            }
-            calleeSummary.put(Taint.getEmptyTaint(), emptyTaintSummary);
-        }
-
-        // Initialize the summary for this invocation by elements copied from the empty taint summary
-        List<Set<Taint>> summary = new ArrayList<>();
-        for (Set<Taint> taints : calleeSummary.get(Taint.getEmptyTaint())) {
-            Set<Taint> newTaints = new HashSet<>();
-            newTaints.addAll(taints);
-            summary.add(newTaints);
-        }
 
         // Get the base object of this invocation in caller and the corresponding this object in callee (if exists)
         Value base = null;
@@ -191,13 +173,14 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             base = ((VirtualInvokeExpr) invoke).getBase();
             calleeThisLocal = calleeBody.getThisLocal();
         }
+        Set<Taint> calleeEntryTaints = new HashSet<>();
 
-        // Gather summary info for this invocation
+        // Generate callee entry taints for this invocation
         for (Taint t : in) {
             // Process base object
             if (base != null && t.taints(base)) {
                 out.remove(t);
-                gatherInvokeSummary(t, calleeThisLocal, stmt, calleeSummary, calleeTaintCache, summary);
+                genCalleeEntryTaints(t, calleeThisLocal, stmt, calleeTaintCache, calleeEntryTaints);
             }
 
             // Process parameters
@@ -206,15 +189,26 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 if (t.taints(arg)) {
                     out.remove(t);
                     Local calleeParam = calleeBody.getParameterLocal(i);
-                    gatherInvokeSummary(t, calleeParam, stmt, calleeSummary, calleeTaintCache, summary);
+                    genCalleeEntryTaints(t, calleeParam, stmt, calleeTaintCache, calleeEntryTaints);
                 }
             }
         }
 
+        // Initialize the callee summary with this set of entry taints (if not done yet)
+        // Summary list format: idx 0: (set of taints on) base, 1: retVal, 2+: parameters
+        if (!calleeSummary.containsKey(calleeEntryTaints)) {
+            List<Set<Taint>> summary = new ArrayList<>();
+            for (int i = 0; i < callee.getParameterCount() + 2; i++) {
+                summary.add(new HashSet<>());
+            }
+            calleeSummary.put(calleeEntryTaints, summary);
+        }
+        List<Set<Taint>> summary = calleeSummary.get(calleeEntryTaints);
+
         // Process base object
         if (base != null) {
             Set<Taint> baseTaints = summary.get(0);
-//            genTaintsFromInvokeSummary(baseTaints, base, stmt, out);
+            genTaintsFromInvokeSummary(baseTaints, base, stmt, out);
         }
 
         // Process return value
@@ -227,14 +221,13 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         for (int i = 0; i < invoke.getArgCount(); i++) {
             Value arg = invoke.getArg(i);
             Set<Taint> argTaints = summary.get(2 + i);
-//            genTaintsFromInvokeSummary(argTaints, arg, stmt, out);
+            genTaintsFromInvokeSummary(argTaints, arg, stmt, out);
         }
     }
 
-    private void gatherInvokeSummary(Taint callerTaint, Value calleeVal, Stmt stmt,
-                                     Map<Taint, List<Set<Taint>>> calleeSummary,
+    private void genCalleeEntryTaints(Taint callerTaint, Value calleeVal, Stmt stmt,
                                      Map<Taint, Taint> calleeTaintCache,
-                                     List<Set<Taint>> summary) {
+                                     Set<Taint> calleeEntryTaints) {
         // Send caller taint to callee
         Taint calleeTaint = callerTaint.transferTaintTo(calleeVal, stmt, method);
         if (calleeTaintCache.containsKey(calleeTaint)) {
@@ -245,15 +238,8 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
         callerTaint.addSuccessor(calleeTaint);
 
-        // Receive callee taint summary for the sent caller taint
-        List<Set<Taint>> lst = calleeSummary.get(calleeTaint);
-        if (lst != null) {
-            for (int i = 0; i < lst.size(); i++) {
-                summary.get(i).addAll(lst.get(i));
-            }
-        } else {
-            calleeSummary.put(calleeTaint, null);
-        }
+        // Add to calleeEntryTaints
+        calleeEntryTaints.add(calleeTaint);
     }
 
     private void genTaintsFromInvokeSummary(Set<Taint> taints, Value callerVal, Stmt stmt, Set<Taint> out) {
@@ -287,8 +273,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         // Get the list of Locals representing the parameters (on LHS of IdentityStmt)
         List<Local> paramLocals = body.getParameterLocals();
 
-        List<Set<Taint>> summary = currMethodSummary.get(entryTaint);
-        assertNotNull(summary);
+        List<Set<Taint>> summary = currMethodSummary.get(entryTaints);
         for (Taint t : in) {
             // Check if t taints base object
             if (thiz != null && t.taints(thiz)) {
@@ -318,9 +303,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     @Override
     protected Set<Taint> entryInitialFlow() {
-        Set<Taint> entryInitialFlow = new HashSet<>();
-        entryInitialFlow.add(entryTaint);
-        return entryInitialFlow;
+        return entryTaints;
     }
 
     @Override
