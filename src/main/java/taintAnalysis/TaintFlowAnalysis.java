@@ -95,7 +95,11 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
 
         if (unit instanceof InvokeStmt) {
-            visitInvoke(in, (Stmt) unit, ((InvokeStmt) unit).getInvokeExpr(), null, out);
+            InvokeStmt stmt = (InvokeStmt) unit;
+            InvokeExpr invoke = stmt.getInvokeExpr();
+            if (!configInterface.isGetter(invoke)) {
+                visitInvoke(in, stmt, invoke, null, out);
+            }
         }
 
         if (unit instanceof ReturnStmt || unit instanceof ReturnVoidStmt) {
