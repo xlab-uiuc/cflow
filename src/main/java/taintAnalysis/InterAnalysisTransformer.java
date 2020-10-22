@@ -25,7 +25,7 @@ public class InterAnalysisTransformer extends SceneTransformer {
         return analysis.getSources();
     }
 
-    public Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> getMethodSummary() {
+    public Map<SootMethod, Map<Taint, List<Set<Taint>>>> getMethodSummary() {
         return analysis.getMethodSummary();
     }
 

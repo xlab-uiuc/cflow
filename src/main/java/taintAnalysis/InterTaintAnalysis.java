@@ -18,7 +18,7 @@ public class InterTaintAnalysis {
     private final Scene scene;
     private final ConfigInterface configInterface;
     private final List<Taint> sources;
-    private final Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> methodSummary;
+    private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
 
     public InterTaintAnalysis(Scene scene, ConfigInterface configInterface) {
@@ -46,7 +46,7 @@ public class InterTaintAnalysis {
                 continue;
             }
             Body b = sm.getActiveBody();
-            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), new HashSet<>(), methodSummary, methodTaintCache);
+            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), Taint.getEmptyTaint(), methodSummary, methodTaintCache);
             analysis.doAnalysis();
             sources.addAll(analysis.getSources());
         }
@@ -63,8 +63,8 @@ public class InterTaintAnalysis {
                     continue;
                 }
                 Body b = sm.getActiveBody();
-                for (Set<Taint> entryTaints : methodSummary.get(sm).keySet()) {
-                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), entryTaints, methodSummary, methodTaintCache);
+                for (Taint entryTaint : methodSummary.get(sm).keySet()) {
+                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), entryTaint, methodSummary, methodTaintCache);
                     analysis.doAnalysis();
                     changed |= analysis.isChanged();
                 }
@@ -86,7 +86,7 @@ public class InterTaintAnalysis {
         return sources;
     }
 
-    public Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> getMethodSummary() {
+    public Map<SootMethod, Map<Taint, List<Set<Taint>>>> getMethodSummary() {
         return methodSummary;
     }
 

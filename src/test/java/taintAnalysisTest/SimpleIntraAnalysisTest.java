@@ -33,7 +33,7 @@ public class SimpleIntraAnalysisTest extends TaintAnalysisTest {
             }
         }
 
-        Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> methodSummary = transformer.getMethodSummary();
+        Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary = transformer.getMethodSummary();
         for (SootMethod method : methodSummary.keySet()) {
             if (method.toString().contains("<Test: void callee(Book,Book,int)>")) {
                 System.out.println("[TEST]> testing <Test: void callee(Book,Book,int)>");

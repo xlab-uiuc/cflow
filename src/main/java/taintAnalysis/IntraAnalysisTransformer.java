@@ -15,7 +15,7 @@ public class IntraAnalysisTransformer extends BodyTransformer {
 
     private final ConfigInterface configInterface;
     private final List<List<Taint>> sourceLists;
-    private final Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> methodSummary;
+    private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
 
     public IntraAnalysisTransformer(ConfigInterface configInterface) {
@@ -33,7 +33,7 @@ public class IntraAnalysisTransformer extends BodyTransformer {
         return sourceLists;
     }
 
-    public Map<SootMethod, Map<Set<Taint>, List<Set<Taint>>>> getMethodSummary() {
+    public Map<SootMethod, Map<Taint, List<Set<Taint>>>> getMethodSummary() {
         return methodSummary;
     }
 
@@ -44,7 +44,7 @@ public class IntraAnalysisTransformer extends BodyTransformer {
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
         TaintFlowAnalysis analysis =
-                new TaintFlowAnalysis(b, configInterface, new HashSet<>(), methodSummary, methodTaintCache);
+                new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(), methodSummary, methodTaintCache);
         analysis.doAnalysis();
 
         List<Taint> lst = analysis.getSources();

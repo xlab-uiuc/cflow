@@ -11,6 +11,8 @@ import java.util.Set;
 
 public class Taint {
 
+    private static final Taint emptyTaint = new Taint(null, null, null);
+
     private final Value value;
     private final Value base;
     private final SootField field;
@@ -51,8 +53,19 @@ public class Taint {
         this.successors = successors;
     }
 
+    public static Taint getEmptyTaint() {
+        return emptyTaint;
+    }
+
+    public boolean isEmpty() {
+        return value == null;
+    }
+
     // taints is field-sensitive
     public boolean taints(Value v) {
+        // Empty taint doesn't taint anything
+        if (isEmpty()) return false;
+
         // Match exact field if v is a ref to instance field
         if (v instanceof InstanceFieldRef) {
             if (base == null) return false;
@@ -61,9 +74,8 @@ public class Taint {
             return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
         }
 
-        // If curr taint is on a exact field and v is not a ref to instance field, return false
+        // If curr taint is on an exact field and v is not a ref to instance field, return false
         if (base != null) {
-            Assert.assertNotNull(field);
             return false;
         }
 
@@ -77,7 +89,11 @@ public class Taint {
     }
 
     public Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
-        return new Taint(v, v, field, stmt, method, new HashSet<>());
+        if (base != null) {
+            return new Taint(v, v, field, stmt, method, new HashSet<>());
+        } else {
+            return new Taint(v, null, null, stmt, method, new HashSet<>());
+        }
     }
 
     public Value getValue() {
@@ -110,6 +126,8 @@ public class Taint {
 
     @Override
     public String toString() {
+        if (isEmpty()) return "Empty Taint";
+
         if (base == null) {
             return value + " in " + stmt + " in method " + method;
         } else {
