@@ -26,6 +26,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
     private final Map<Taint, Taint> currTaintCache;
     private final List<Taint> sources;
+    private final Set<String> basicParamTypeSet;
 
     public TaintFlowAnalysis(Body body, ConfigInterface configInterface) {
         this(body, configInterface, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>());
@@ -67,6 +68,14 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             }
             this.currMethodSummary.put(entryTaint, summary);
         }
+
+        // initialize basic param type set
+        this.basicParamTypeSet = new HashSet<String>(Arrays.asList(
+                "int",
+                "float",
+                "long",
+                "boolean"
+        ));
     }
 
     public boolean isChanged() {
@@ -311,8 +320,10 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (int i = 0; i < paramLocals.size(); i++) {
                 Local paramLocal = paramLocals.get(i);
                 // TODO: check if the param is basic type (we should not taint them in that case)
-                if (t.associatesWith(paramLocal)) {
+                String paramType = paramLocal.getType().toString();
+                if (!basicParamTypeSet.contains(paramType) && t.associatesWith(paramLocal)) {
                     summary.get(2 + i).add(t);
+                    System.out.println("PARAM: " + paramLocal.toString() + " TYPE: " + paramLocal.getType().toString() + " is tainted");
                 }
             }
         }
