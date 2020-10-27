@@ -1,18 +1,15 @@
 package taintAnalysisTest;
 
+import configInterface.ConfigInterface;
+import configInterface.HadoopInterface;
 import org.junit.Test;
 import org.junit.Assert;
 import soot.SootMethod;
 import soot.jimple.Stmt;
-import soot.jimple.parser.node.TAbstract;
 import taintAnalysis.Taint;
 import taintAnalysis.TaintAnalysisDriver;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class HadoopIntraAnalysisTest extends TaintAnalysisTest {
@@ -20,8 +17,12 @@ public class HadoopIntraAnalysisTest extends TaintAnalysisTest {
     @Test
     public void testIntraAnalysisHadoop() {
         System.out.println("#### testing IntraAnalysis on Hadoop");
+        String hadoopJar = "app/hadoop-3.3.0/share/hadoop/common/hadoop-common-3.3.0.jar";
+        List<String> srcPaths = new ArrayList<>();
+        srcPaths.add(hadoopJar);
+        ConfigInterface configInterface = new HadoopInterface();
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        List<List<Taint>> results = driver.runHadoop();
+        List<List<Taint>> results = driver.runIntraTaintAnalysis(srcPaths, srcPaths, configInterface).getSourceLists();
         for (List<Taint> result : results) {
 //            System.out.println("> result");
             if (result.size() > 0) {

@@ -33,8 +33,16 @@ $ mvn test
 
 ### Run
 
-One example running command is as follows:
+To run on the test jar:
 
 ```
-$ ./run.sh -a hadoop_common
+$ ./run.sh -a test [-i]
 ```
+
+To run on Hadoop Common:
+
+```
+$ ./run.sh -a hadoop_common [-i]
+```
+
+If the -i flag is enabled, only intra-procedural analysis in performed.

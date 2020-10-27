@@ -1,15 +1,9 @@
-//import acai.Acai;
-//import acai.configInterface.ConfigInterface;
-//import acai.flowdroid.AcaiInfoflowResultHandler;
-//import acai.utility.AcaiConfig;
-//import acai.utility.FlowComparator;
 import checking.*;
+import configInterface.ConfigInterface;
 import org.apache.commons.cli.*;
-import org.xml.sax.SAXException;
 import taintAnalysis.TaintAnalysisDriver;
-//import soot.jimple.infoflow.results.InfoflowResults;
+import utility.Config;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,13 +23,6 @@ public class Main {
                 .hasArg()
                 .build();
 
-        Option optionC = Option.builder("a")
-                .required(true)
-                .desc("Support applications are: hdfs, mapreduce, yarn, hadoop_common, hadoop_tools, hbase, alluxio, zookeeper, spark")
-                .longOpt("app")
-                .hasArg()
-                .build();
-
         Option optionB = Option.builder("x")
                 .required(true)
                 .desc("Configuration parameter directory path.")
@@ -43,12 +30,23 @@ public class Main {
                 .hasArg()
                 .build();
 
+        Option optionC = Option.builder("a")
+                .required(true)
+                .desc("Support applications are: test, hdfs, mapreduce, yarn, hadoop_common, hadoop_tools, hbase, alluxio, zookeeper, spark")
+                .longOpt("app")
+                .hasArg()
+                .build();
+
+        Option optionD = new Option("intra", "Run intra-procedural analysis (testing only)");
+
         options.addOption(optionA);
         options.addOption(optionB);
         options.addOption(optionC);
+        options.addOption(optionD);
 
         try {
             CommandLine commandLine = parser.parse(options, args);
+            boolean intra = false;
 
             /* getting optional parameters */
             if (commandLine.hasOption('o')) {
@@ -56,6 +54,11 @@ public class Main {
                 String filePath = commandLine.getOptionValue('o');
                 PrintStream fileOut = new PrintStream(new FileOutputStream(filePath, true));
                 System.setOut(fileOut);
+            }
+
+            if (commandLine.hasOption("intra")) {
+                /* getting option intra */
+                intra = true;
             }
 
             /* getting required parameters */
@@ -67,60 +70,47 @@ public class Main {
             for (int i = 0; i < xmlFiles.length; i++)
                 fileNames[i] = xmlFiles[i].getAbsolutePath();
 
-//            /* getting option a */
-//            String apps = commandLine.getOptionValue('a');
-//            String[] result = apps.split(",");
-//            String[][] considered = new String[result.length][];
-//            for (int i = 0; i < considered.length; i++) {
-//                try {
-//                    considered[i] = AcaiConfig.getCfg(result[i]);
-//                } catch (IllegalArgumentException e) {
-//                    throw new ParseException(result[i] + " not found in supported application");
-//                }
-//            }
-//
-//            run(considered);
-//
-//        } catch (ParseException | ParserConfigurationException | SAXException ex) {
-//            System.out.println(ex.getMessage());
-//            new HelpFormatter().printHelp("ccc",options);
-//        }
+            /* getting option a */
+            String apps = commandLine.getOptionValue('a');
+            String[] result = apps.split(",");
+            String[][] considered = new String[result.length][];
+            for (int i = 0; i < considered.length; i++) {
+                try {
+                    considered[i] = Config.getCfg(result[i]);
+                } catch (IllegalArgumentException e) {
+                    throw new ParseException(result[i] + " not found in supported application");
+                }
+            }
+
+            run(considered, intra);
         } catch (ParseException ex) {
             System.out.println(ex.getMessage());
             new HelpFormatter().printHelp("ccc", options);
         }
-
-        TaintAnalysisDriver driver = new TaintAnalysisDriver();
-//        driver.run();
-        driver.runInterTaintAnalysis();
-//        driver.runHadoop();
     }
-}
-//
-//    private static void run(String[][] considered) throws ParserConfigurationException, SAXException, IOException {
-//        List<String> appPaths = new LinkedList<>();
-//        List<String> srcPaths = new LinkedList<>();
-//        List<String> classPaths = new LinkedList<>();
-//        ConfigInterface configInterface = null;
-//
-//        for (String[] cfg : considered) {
-//            appPaths.addAll(AcaiConfig.getAppPaths(cfg));
-//            srcPaths.addAll(AcaiConfig.getSourcePaths(cfg));
-//            classPaths.addAll(AcaiConfig.getClassPaths(cfg));
-//            configInterface = AcaiConfig.getInterface(cfg);
-//        }
-//
-//        // Run infoflow analysis
-//        Acai acai = new Acai(appPaths, srcPaths, classPaths, configInterface);
-//        acai.getInfoflow().setTaintWrapper(null);
-//        acai.getConfiguration().setInspectSinks(false);
-//        acai.computeInfoflow();
-//        InfoflowResults results = acai.getResults();
-//
-//        // Run checking
-//
+
+    private static void run(String[][] considered, boolean intra) {
+        List<String> srcPaths = new LinkedList<>();
+        List<String> classPaths = new LinkedList<>();
+        ConfigInterface configInterface = null;
+
+        for (String[] cfg : considered) {
+            srcPaths.addAll(Config.getSourcePaths(cfg));
+            classPaths.addAll(Config.getClassPaths(cfg));
+            configInterface = Config.getInterface(cfg);
+        }
+
+        // Run taint analysis
+        TaintAnalysisDriver driver = new TaintAnalysisDriver();
+        if (intra) {
+            driver.runIntraTaintAnalysis(srcPaths, classPaths, configInterface);
+        } else {
+            driver.runInterTaintAnalysis(srcPaths, classPaths, configInterface);
+        }
+
+//         // Run checking
 //        runChecking(configInterface, results, considered);
-//    }
+    }
 //
 //    private static void runChecking(ConfigInterface configInterface, InfoflowResults results, String[][] considered) throws IOException, SAXException, ParserConfigurationException {
 //        //CheckPass dataTypeChk = new DataTypeChk();
@@ -136,4 +126,4 @@ public class Main {
 //        //unusedParamPass.runChecking(configInterface, results, considered);
 //    }
 //
-//}
+}

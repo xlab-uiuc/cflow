@@ -55,7 +55,7 @@ public class InterTaintAnalysis {
         while (changed) {
             changed = false;
             System.out.println("iter" + iter);
-            if (iter > 5)
+            if (iter > 10)
                 break;
 
             for (SootMethod sm : lst) {
@@ -63,9 +63,9 @@ public class InterTaintAnalysis {
                     continue;
                 }
                 Body b = sm.getActiveBody();
-                Set<Taint> s = new HashSet<>();
-                s.addAll(methodSummary.get(sm).keySet());
-                for (Taint entryTaint : s) {
+                Set<Taint> entryTaints = new HashSet<>();
+                entryTaints.addAll(methodSummary.get(sm).keySet());
+                for (Taint entryTaint : entryTaints) {
                     TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), entryTaint, methodSummary, methodTaintCache);
                     analysis.doAnalysis();
                     changed |= analysis.isChanged();
