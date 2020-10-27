@@ -117,13 +117,6 @@ public class Test {
         System.out.println(b);
     }
 
-    public int test9() {
-        // Inter-procedural
-        int a = source();
-        int b = a + 10;
-        return b;
-    }
-
     public void test10() {
         // Test visitReturn and visitReturnVoid
         Book book1 = new Book();

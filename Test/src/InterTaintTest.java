@@ -16,6 +16,6 @@ public class InterTaintTest {
     }
 
     public void testInterface() {
-        Cat cat = new Cat();
+        Car cat = new Car();
     }
 }

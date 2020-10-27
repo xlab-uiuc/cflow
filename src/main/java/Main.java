@@ -1,8 +1,3 @@
-//import acai.Acai;
-//import acai.configInterface.ConfigInterface;
-//import acai.flowdroid.AcaiInfoflowResultHandler;
-//import acai.utility.AcaiConfig;
-//import acai.utility.FlowComparator;
 import checking.*;
 import configInterface.ConfigInterface;
 import org.apache.commons.cli.*;
