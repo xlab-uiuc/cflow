@@ -13,6 +13,10 @@ public class MainClass {
         int c = main.test9();
         System.out.println(c);
         main.test10();
+
+        // Inter taint analysis test
+        InterTaintTest main2 = new InterTaintTest();
+        main2.testInheritance();
     }
 
 }

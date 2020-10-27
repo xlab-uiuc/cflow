@@ -26,10 +26,12 @@ public class Test {
 
     private void callee(Book b1, Book b2, int v) {
         if (v > 1) {
+            v = source(); // v shouldn't be
             b2.a = source();
             i1 = b2.a;
             return;
         } else {
+            v = source();
             b1.a = source();
             i1 = b1.a;
             return;
