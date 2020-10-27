@@ -32,17 +32,26 @@ public class InterAnalysisTest extends TaintAnalysisTest {
                 List<Set<Taint>> taintList = methodSummary.get(method).get(Taint.getEmptyTaint());
                 Assert.assertEquals(2, taintList.size());
                 Assert.assertEquals(1, taintList.get(0).size()); // @this should be tainted
-            } else if (method.toString().contains("Car: void dynamicBinding1(Vehicle)")) {
+            } else if (method.toString().contains("<Car: void dynamicBinding1(Vehicle)>")) {
                 List<Set<Taint>> taintList = methodSummary.get(method).get(Taint.getEmptyTaint());
                 Assert.assertEquals(3, taintList.size()); // @this, @return, @parameter0
                 Assert.assertEquals(1, taintList.get(0).size()); // @this.a should be tainted
-            } else if (method.toString().contains("Car: void dynamicBinding2(Vehicle)")) {
+            } else if (method.toString().contains("<Car: void dynamicBinding2(Vehicle)>")) {
                 List<Set<Taint>> taintList = methodSummary.get(method).get(Taint.getEmptyTaint());
                 Assert.assertEquals(3, taintList.size()); // @this, @return, @parameter0
                 Assert.assertEquals(0, taintList.get(0).size()); // @this.a should not be tainted
             }
-            // TODO: test dynamic binding in interface
-
+            // test dynamic binding in interface
+            else if (method.toString().contains("<Cat: void dynamicBinding(Animal)>")) {
+                List<Set<Taint>> taintList = methodSummary.get(method).get(Taint.getEmptyTaint());
+                Assert.assertEquals(3, taintList.size()); // @this, @return, @parameter0
+                Assert.assertEquals(1, taintList.get(0).size());
+                for (Set<Taint> s : taintList) {
+                    for (Taint t : s) {
+                        System.out.println("[Cat.dynamicBinding(Animal)] > " + t.toString());
+                    }
+                }
+            }
         }
     }
 }

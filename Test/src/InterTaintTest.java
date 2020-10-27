@@ -16,6 +16,8 @@ public class InterTaintTest {
     }
 
     public void testInterface() {
-        Car cat = new Car();
+        Cat cat1 = new Cat();
+        Cat cat2 = new Cat();
+        cat1.dynamicBinding(cat2);
     }
 }
