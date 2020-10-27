@@ -29,6 +29,9 @@ public class SimpleIntraAnalysisTest extends TaintAnalysisTest {
         for (List<Taint> result : results) {
             if (result.size() > 0) {
                 String method = result.get(0).getMethod().toString();
+                if (!method.contains("SimpleIntraAnalysisTest")) {
+                    continue;
+                }
                 if (method.contains("test4")) {
                     Assert.assertEquals(0, result.size());
                 } else if (method.contains("test8")) {

@@ -1,18 +1,22 @@
-public class Test {
+public class SimpleIntraAnalysisTest {
 
     int i1;
     int i2;
 
+    public void run() {
+        test1();
+        test2();
+        test3();
+        test4();
+        test5();
+        test6();
+        test7();
+        test8();
+        test10();
+    }
+
     private int source() {
         return 7;
-    }
-
-    private Book sourceBook() {
-        return new Book(1, 1);
-    }
-
-    private void sourceBook(Book b) {
-        b.a = 5;
     }
 
     private void callee(Book b1, Book b2, int v) {
