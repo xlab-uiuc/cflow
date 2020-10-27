@@ -1,14 +1,19 @@
 public class Car extends Vehicle {
 
-    public int c;
+    int b;
 
     Car() {
         super();
-        c = 1;
+        b = 1;
     }
 
-    Car(int a_, int c_) {
-        super(a_);
-        c = c_;
+    @Override
+    public void dynamicBinding1(Vehicle v) {
+        a = v.a + source();
+    }
+
+    @Override
+    public void dynamicBinding2(Vehicle v) {
+        a = 2;
     }
 }

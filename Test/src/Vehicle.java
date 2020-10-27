@@ -10,9 +10,16 @@ public class Vehicle {
         a = a_;
     }
 
-    private int source() {
+    int source() {
         return 7;
     }
 
+    public void dynamicBinding1(Vehicle v) {
+        a = v.a;
+    }
+
+    public void dynamicBinding2(Vehicle v) {
+        a = source() + 1;
+    }
 
 }

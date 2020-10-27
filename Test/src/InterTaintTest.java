@@ -9,6 +9,13 @@ public class InterTaintTest {
     }
 
     public void testInheritance() {
-        Vehicle v = new Car();
+        Vehicle v1 = new Car();
+        Vehicle v2 = new Car();
+        v1.dynamicBinding1(v2);
+        v1.dynamicBinding2(v2);
+    }
+
+    public void testInterface() {
+        Cat cat = new Cat();
     }
 }

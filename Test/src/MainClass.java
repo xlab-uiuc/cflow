@@ -17,6 +17,7 @@ public class MainClass {
         // Inter taint analysis test
         InterTaintTest main2 = new InterTaintTest();
         main2.testInheritance();
+        main2.testInterface();
     }
 
 }
