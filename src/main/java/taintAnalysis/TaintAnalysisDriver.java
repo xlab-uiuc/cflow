@@ -5,7 +5,9 @@ import configInterface.HadoopInterface;
 import configInterface.TestInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import soot.G;
 import soot.PackManager;
+import soot.Scene;
 import soot.Transform;
 
 import java.util.ArrayList;
@@ -18,12 +20,11 @@ public class TaintAnalysisDriver {
     public TaintAnalysisDriver() {
     }
 
-    public IntraAnalysisTransformer runIntraTaintAnalysis() {
-        List<String> srcPaths = new ArrayList<>();
-        System.out.println("running Test.jar");
-        srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
+    public IntraAnalysisTransformer runIntraTaintAnalysis(
+            List<String> srcPaths, List<String> classPaths, ConfigInterface configInterface) {
+        G.reset();
 
-        String classPath = String.join(":", srcPaths);
+        String classPath = String.join(":", classPaths);
         String[] initArgs = {
                 // Input Options
                 "-cp", classPath,
@@ -44,7 +45,6 @@ public class TaintAnalysisDriver {
             sootArgs[initArgs.length + 2*i + 1] = srcPaths.get(i);
         }
 
-        ConfigInterface configInterface = new TestInterface();
         PackManager.v().getPack("jtp").add(
                 new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
 
@@ -55,12 +55,11 @@ public class TaintAnalysisDriver {
         return transformer;
     }
 
-    public InterAnalysisTransformer runInterTaintAnalysis() {
-        List<String> srcPaths = new ArrayList<>();
-        System.out.println("running Test.jar");
-        srcPaths.add("Test/out/artifacts/Test_jar/Test.jar");
+    public InterAnalysisTransformer runInterTaintAnalysis(
+            List<String> srcPaths, List<String> classPaths, ConfigInterface configInterface) {
+        G.reset();
 
-        String classPath = String.join(":", srcPaths);
+        String classPath = String.join(":", classPaths);
         String[] initArgs = {
                 // Input Options
                 "-cp", classPath,
@@ -84,7 +83,6 @@ public class TaintAnalysisDriver {
             sootArgs[initArgs.length + 2*i + 1] = srcPaths.get(i);
         }
 
-        ConfigInterface configInterface = new TestInterface();
         PackManager.v().getPack("wjtp").add(
                 new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(configInterface)));
 

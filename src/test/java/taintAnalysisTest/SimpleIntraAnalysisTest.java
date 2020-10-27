@@ -1,11 +1,13 @@
 package taintAnalysisTest;
 
+import configInterface.ConfigInterface;
 import org.junit.Test;
 import org.junit.Assert;
 import soot.SootMethod;
 import taintAnalysis.IntraAnalysisTransformer;
 import taintAnalysis.Taint;
 import taintAnalysis.TaintAnalysisDriver;
+import utility.Config;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +19,12 @@ public class SimpleIntraAnalysisTest extends TaintAnalysisTest {
 
     @Test
     public void testIntraAnalysisSimpleTest() {
+        String[] cfg = Config.getCfg("test");
+        List<String> srcPaths = Config.getSourcePaths(cfg);
+        List<String> classPaths = Config.getClassPaths(cfg);
+        ConfigInterface configInterface = Config.getInterface(cfg);
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        IntraAnalysisTransformer transformer = driver.runIntraTaintAnalysis();
+        IntraAnalysisTransformer transformer = driver.runIntraTaintAnalysis(srcPaths, classPaths, configInterface);
         List<List<Taint>> results = transformer.getSourceLists();
         for (List<Taint> result : results) {
             if (result.size() > 0) {

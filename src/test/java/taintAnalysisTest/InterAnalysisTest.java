@@ -1,9 +1,11 @@
 package taintAnalysisTest;
 
+import configInterface.ConfigInterface;
 import org.junit.Assert;
 import org.junit.Test;
 import soot.SootMethod;
 import taintAnalysis.*;
+import utility.Config;
 
 import java.util.List;
 import java.util.Map;
@@ -12,8 +14,12 @@ import java.util.Set;
 public class InterAnalysisTest extends TaintAnalysisTest {
     @Test
     public void testInterTaintAnalysis() {
+        String[] cfg = Config.getCfg("test");
+        List<String> srcPaths = Config.getSourcePaths(cfg);
+        List<String> classPaths = Config.getClassPaths(cfg);
+        ConfigInterface configInterface = Config.getInterface(cfg);
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        InterAnalysisTransformer transformer = driver.runInterTaintAnalysis();
+        IntraAnalysisTransformer transformer = driver.runIntraTaintAnalysis(srcPaths, classPaths, configInterface);
         Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary = transformer.getMethodSummary();
 
         for (SootMethod method : methodSummary.keySet()) {
