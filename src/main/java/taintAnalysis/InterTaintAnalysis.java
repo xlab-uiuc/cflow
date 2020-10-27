@@ -63,7 +63,9 @@ public class InterTaintAnalysis {
                     continue;
                 }
                 Body b = sm.getActiveBody();
-                for (Taint entryTaint : methodSummary.get(sm).keySet()) {
+                Set<Taint> s = new HashSet<>();
+                s.addAll(methodSummary.get(sm).keySet());
+                for (Taint entryTaint : s) {
                     TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), entryTaint, methodSummary, methodTaintCache);
                     analysis.doAnalysis();
                     changed |= analysis.isChanged();

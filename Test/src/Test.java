@@ -1,16 +1,7 @@
 public class Test {
 
-    private class Inner {
-        int a = 0;
-        int b = 0;
-    }
-
     int i1;
     int i2;
-
-    public Test() {
-
-    }
 
     private int source() {
         return 7;
@@ -127,7 +118,7 @@ public class Test {
     }
 
     public int test9() {
-        // Inter-procedural, runs after test5
+        // Inter-procedural
         int a = source();
         int b = a + 10;
         return b;

@@ -180,8 +180,8 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         // Get the base object of this invocation in caller and the corresponding this object in callee (if exists)
         Value base = null;
         Value calleeThisLocal = null;
-        if (invoke instanceof VirtualInvokeExpr) {
-            base = ((VirtualInvokeExpr) invoke).getBase();
+        if (invoke instanceof InstanceInvokeExpr) {
+            base = ((InstanceInvokeExpr) invoke).getBase();
             calleeThisLocal = calleeBody.getThisLocal();
         }
 
