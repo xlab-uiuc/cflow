@@ -19,8 +19,12 @@ public class MainClass {
         nestedFieldTest.run();
 
         // Test recursive call
-        RecursiveCallTest recursiveCallTest = new RecursiveCallTest();
+//        RecursiveCallTest recursiveCallTest = new RecursiveCallTest();
 //        recursiveCallTest.run();
+
+        // Test context sensitive path building
+        ContextSensitivityTest contextSensitivityTest = new ContextSensitivityTest();
+        contextSensitivityTest.run();
     }
 
 }
