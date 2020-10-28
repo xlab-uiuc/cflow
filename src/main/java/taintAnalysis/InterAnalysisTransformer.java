@@ -7,6 +7,7 @@ import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootMethod;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,19 +43,24 @@ public class InterAnalysisTransformer extends SceneTransformer {
         analysis.doAnalysis();
 
         logger.info("Number of sources: {}", analysis.getSources().size());
+        Set<Taint> visited = new HashSet<>();
         for (Taint source : analysis.getSources()) {
             System.out.println("source");
-            dfs(source, 0);
+            dfs(source, 0, visited);
         }
     }
 
-    private void dfs(Taint t, int depth) {
+    private void dfs(Taint t, int depth, Set<Taint> visited) {
+        if (visited.contains(t)) {
+            return;
+        }
+        visited.add(t);
         for (int i = 0; i < depth; i++) {
             System.out.print("-");
         }
         System.out.println(t);
         for (Taint succ : t.getSuccessors()) {
-            dfs(succ, depth + 1);
+            dfs(succ, depth + 1, visited);
         }
     }
 

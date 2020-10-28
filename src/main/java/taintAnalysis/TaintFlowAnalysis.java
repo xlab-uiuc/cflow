@@ -87,8 +87,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     }
 
     public void doAnalysis() {
-//        logger.info("Analyzing method {}", body.getMethod());
-        System.out.println("##### do analysis on " + body.getMethod().toString());
+        logger.debug("Analyzing method {}", method);
         super.doAnalysis();
     }
 
@@ -162,7 +161,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void visitInvoke(Set<Taint> in, Stmt stmt, InvokeExpr invoke, Value retVal, Set<Taint> out) {
         SootMethod callee = invoke.getMethod();
-        logger.info("visit invoke {}", invoke);
+//        logger.info("visit invoke {}", invoke);
         // Sanity check
         assertNotNull(callee);
         if (!callee.hasActiveBody()) {
@@ -219,7 +218,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                     if (!basicParamTypeSet.contains(paramType)) {
                         out.remove(t);
                     }
-                    
+
                     Local calleeParam = calleeBody.getParameterLocal(i);
                     genCalleeEntryTaints(t, calleeParam, stmt, calleeSummary, calleeTaintCache, summary);
                 }
