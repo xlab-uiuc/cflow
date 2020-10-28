@@ -97,8 +97,6 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         out.clear();
         out.addAll(in);
 
-        System.out.println("[flowThrough]> flow through " + unit.toString());
-
         if (unit instanceof AssignStmt) {
             visitAssign(in, (AssignStmt) unit, out);
         }
@@ -139,16 +137,13 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                     currTaintCache.put(newTaint, newTaint);
                 }
                 out.add(newTaint);
-                System.out.println("[ASSIGN]> add newTaint: " + newTaint.toString());
             } else {
                 visitInvoke(in, stmt, stmt.getInvokeExpr(), leftOp, out);
             }
         } else {
             for (Taint t : in) {
-                System.out.println(t);
                 for (ValueBox box : stmt.getUseBoxes()) {
                     Value value = box.getValue();
-                    System.out.println(">>" + value);
                     if (t.taints(value)) {
                         Taint newTaint = new Taint(leftOp, stmt, method);
                         if (currTaintCache.containsKey(newTaint)) {
@@ -158,7 +153,6 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                             currTaintCache.put(newTaint, newTaint);
                         }
                         t.addSuccessor(newTaint);
-                        System.out.println("[ASSIGN]> add newTaint: " + newTaint.toString());
                         out.add(newTaint);
                     }
                 }
@@ -166,7 +160,6 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
     }
 
-    // TODO: TEST AND TEST
     private void visitInvoke(Set<Taint> in, Stmt stmt, InvokeExpr invoke, Value retVal, Set<Taint> out) {
         SootMethod callee = invoke.getMethod();
 
@@ -287,7 +280,6 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
     }
 
-    // TODO: TEST AND TEST
     private void visitReturn(Set<Taint> in, Stmt stmt, Set<Taint> out) {
         // Get the local representing @this (if exists)
         Local thiz = null;
@@ -319,11 +311,10 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             // Check if t taints object-type parameters
             for (int i = 0; i < paramLocals.size(); i++) {
                 Local paramLocal = paramLocals.get(i);
-                // TODO: check if the param is basic type (we should not taint them in that case)
+                // Check if the param is basic type (we should not taint them in that case)
                 String paramType = paramLocal.getType().toString();
                 if (!basicParamTypeSet.contains(paramType) && t.associatesWith(paramLocal)) {
                     summary.get(2 + i).add(t);
-                    System.out.println("PARAM: " + paramLocal.toString() + " TYPE: " + paramLocal.getType().toString() + " is tainted");
                 }
             }
         }
