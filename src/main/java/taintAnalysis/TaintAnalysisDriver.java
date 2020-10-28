@@ -67,9 +67,7 @@ public class TaintAnalysisDriver {
                 "-no-bodies-for-excluded",
 
                 // Phase Options
-                "-p", "cg", "all-reachable",
-                "-p", "cg.spark", "enabled",
-                "-p", "cg.spark", "apponly",
+                "-p", "cg", "off",
 
                 // Output Options
                 "-f", "J",

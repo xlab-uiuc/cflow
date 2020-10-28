@@ -1,12 +1,9 @@
 package taintAnalysis;
 
 import configInterface.ConfigInterface;
-import configInterface.TestInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
-import soot.jimple.toolkits.callgraph.CallGraph;
-import soot.jimple.toolkits.callgraph.TopologicalOrderer;
 
 import java.util.*;
 
@@ -35,20 +32,19 @@ public class InterTaintAnalysis {
 
         boolean changed = true;
 
-        // Traverse the methods in reverse post-order
-        CallGraph cg = Scene.v().getCallGraph();
-        TopologicalOrderer orderer = new TopologicalOrderer(cg);
-        orderer.go();
-        List<SootMethod> lst = orderer.order();
-        Collections.reverse(lst);
-
-        for (SootMethod sm : lst) {
-            if (!sm.hasActiveBody()) {
-                System.out.println(sm);
-                continue;
+        List<SootMethod> methodList = new ArrayList<>();
+        for (SootClass sc : Scene.v().getApplicationClasses()) {
+            for (SootMethod sm : sc.getMethods()) {
+                if (sm.isConcrete()) {
+                    methodList.add(sm);
+                }
             }
-            Body b = sm.getActiveBody();
-            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), Taint.getEmptyTaint(), methodSummary, methodTaintCache);
+        }
+
+        logger.info("Num of methods: {}", methodList.size());
+        for (SootMethod sm : methodList) {
+            Body b = sm.retrieveActiveBody();
+            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(), methodSummary, methodTaintCache);
             analysis.doAnalysis();
             sources.addAll(analysis.getSources());
         }
@@ -57,19 +53,13 @@ public class InterTaintAnalysis {
         while (changed) {
             changed = false;
             System.out.println("iter" + iter);
-            if (iter > 10)
-                break;
 
-            for (SootMethod sm : lst) {
-                if (!sm.hasActiveBody()) {
-                    System.out.println(sm);
-                    continue;
-                }
-                Body b = sm.getActiveBody();
+            for (SootMethod sm : methodList) {
+                Body b = sm.retrieveActiveBody();
                 Set<Taint> entryTaints = new HashSet<>();
                 entryTaints.addAll(methodSummary.get(sm).keySet());
                 for (Taint entryTaint : entryTaints) {
-                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, new TestInterface(), entryTaint, methodSummary, methodTaintCache);
+                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, entryTaint, methodSummary, methodTaintCache);
                     analysis.doAnalysis();
                     changed |= analysis.isChanged();
                 }

@@ -1,6 +1,8 @@
 package taintAnalysis;
 
 import configInterface.ConfigInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootMethod;
@@ -10,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class InterAnalysisTransformer extends SceneTransformer {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final InterTaintAnalysis analysis;
 
@@ -37,6 +41,7 @@ public class InterAnalysisTransformer extends SceneTransformer {
     protected void internalTransform(String phaseName, Map<String, String> options) {
         analysis.doAnalysis();
 
+        logger.info("Number of sources: {}", analysis.getSources().size());
         for (Taint source : analysis.getSources()) {
             System.out.println("source");
             dfs(source, 0);
