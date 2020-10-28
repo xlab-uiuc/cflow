@@ -20,7 +20,7 @@ public class IntraAnalysisTransformer extends BodyTransformer {
 
     public IntraAnalysisTransformer(ConfigInterface configInterface) {
         this.configInterface = configInterface;
-        this.sourceLists = new ArrayList<>();
+        this.sourceLists = Collections.synchronizedList(new ArrayList<>());
         this.methodSummary = new HashMap<>();
         this.methodTaintCache = new HashMap<>();
     }

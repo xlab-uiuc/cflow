@@ -162,7 +162,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void visitInvoke(Set<Taint> in, Stmt stmt, InvokeExpr invoke, Value retVal, Set<Taint> out) {
         SootMethod callee = invoke.getMethod();
-
+        logger.info("visit invoke {}", invoke);
         // Sanity check
         assertNotNull(callee);
         if (!callee.hasActiveBody()) {
@@ -214,7 +214,12 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (int i = 0; i < invoke.getArgCount(); i++) {
                 Value arg = invoke.getArg(i);
                 if (t.associatesWith(arg)) {
-                    out.remove(t);
+                    // Check if the param is basic type (we should pass on the taint in that case)
+                    String paramType = arg.getType().toString();
+                    if (!basicParamTypeSet.contains(paramType)) {
+                        out.remove(t);
+                    }
+                    
                     Local calleeParam = calleeBody.getParameterLocal(i);
                     genCalleeEntryTaints(t, calleeParam, stmt, calleeSummary, calleeTaintCache, summary);
                 }

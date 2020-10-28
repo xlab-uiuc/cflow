@@ -19,7 +19,7 @@ public class InterAnalysisTest extends TaintAnalysisTest {
         List<String> classPaths = Config.getClassPaths(cfg);
         ConfigInterface configInterface = Config.getInterface(cfg);
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        IntraAnalysisTransformer transformer = driver.runIntraTaintAnalysis(srcPaths, classPaths, configInterface);
+        InterAnalysisTransformer transformer = driver.runInterTaintAnalysis(srcPaths, classPaths, configInterface);
         Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary = transformer.getMethodSummary();
 
         for (SootMethod method : methodSummary.keySet()) {
