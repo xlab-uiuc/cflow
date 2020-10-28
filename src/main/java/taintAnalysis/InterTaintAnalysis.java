@@ -4,10 +4,9 @@ import configInterface.ConfigInterface;
 import configInterface.TestInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Body;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
+import soot.*;
+import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.jimple.toolkits.callgraph.TopologicalOrderer;
 
 import java.util.*;
 
@@ -36,13 +35,16 @@ public class InterTaintAnalysis {
 
         boolean changed = true;
 
-        List<SootMethod> lst = new ArrayList<>();
-        for (SootClass sc : scene.getApplicationClasses()) {
-            lst.addAll(sc.getMethods());
-        }
+        // Traverse the methods in reverse post-order
+        CallGraph cg = Scene.v().getCallGraph();
+        TopologicalOrderer orderer = new TopologicalOrderer(cg);
+        orderer.go();
+        List<SootMethod> lst = orderer.order();
+        Collections.reverse(lst);
 
         for (SootMethod sm : lst) {
             if (!sm.hasActiveBody()) {
+                System.out.println(sm);
                 continue;
             }
             Body b = sm.getActiveBody();
@@ -60,6 +62,7 @@ public class InterTaintAnalysis {
 
             for (SootMethod sm : lst) {
                 if (!sm.hasActiveBody()) {
+                    System.out.println(sm);
                     continue;
                 }
                 Body b = sm.getActiveBody();

@@ -57,6 +57,9 @@ public class TaintAnalysisDriver {
 
         String classPath = String.join(":", classPaths);
         String[] initArgs = {
+                // General Options
+                "-w",
+
                 // Input Options
                 "-cp", classPath,
                 "-pp",
@@ -64,7 +67,9 @@ public class TaintAnalysisDriver {
                 "-no-bodies-for-excluded",
 
                 // Phase Options
-                "-w",
+                "-p", "cg", "all-reachable",
+                "-p", "cg.spark", "enabled",
+                "-p", "cg.spark", "apponly",
 
                 // Output Options
                 "-f", "J",

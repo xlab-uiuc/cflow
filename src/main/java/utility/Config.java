@@ -13,13 +13,13 @@ import java.util.List;
 
 public class Config {
 
-    public final static String TEST_PATH = "Test/out/artifacts/Test_jar/Test.jar";
-    public final static String HADOOP_PATH = "app/hadoop-3.3.0/";
-    public final static String HBASE_PATH = "app/hbase-2.3.1/";
-    public final static String ALLUXIO_PATH = "app/alluxio-1.8.0/";
-    public final static String ZOOKEEPER_PATH = "app/apache-zookeeper-3.5.6-bin/";
-    public final static String SPARK_PATH = "app/spark-2.4.6-bin-hadoop2.7/";
-    public final static String[] SUPPORTED = {"test", "hdfs","mapreduce","yarn","hadoop_common","hadoop_tools",
+    public static final String TEST_PATH = "Test/out/artifacts/Test_jar/Test.jar";
+    public static final String HADOOP_PATH = "app/hadoop-3.3.0/";
+    public static final String HBASE_PATH = "app/hbase-2.3.1/";
+    public static final String ALLUXIO_PATH = "app/alluxio-1.8.0/";
+    public static final String ZOOKEEPER_PATH = "app/apache-zookeeper-3.5.6-bin/";
+    public static final String SPARK_PATH = "app/spark-2.4.6-bin-hadoop2.7/";
+    public static final String[] SUPPORTED = {"test","hdfs","mapreduce","yarn","hadoop_common","hadoop_tools",
             "hbase","alluxio","zookeeper","spark"};
 
     public static final String[][] CONFIGS = {
@@ -76,6 +76,7 @@ public class Config {
     };
 
     public static String[] getCfg(String app) throws IllegalArgumentException {
+        System.out.println(app);
         int i = 0;
         for (; i < SUPPORTED.length; i++) {
             if (SUPPORTED[i].equals(app)) {
@@ -168,12 +169,12 @@ public class Config {
             List<String> sourcePaths = new ArrayList<>();
 
             // include Hadoop Common for all Hadoop subcomponents
-            String[] hadoopCommonCfg = CONFIGS[3];
+            String[] hadoopCommonCfg = CONFIGS[4];
             sourcePaths.addAll(getJars(hadoopCommonCfg[2]));
 
             if (cfg[1].contains("tools")) {
                 sourcePaths.addAll(getJarsHadoopTools(cfg[2]));
-            } else {
+            } else if (!cfg[1].contains("common")){
                 sourcePaths.addAll(getJars(cfg[2]));
             }
 
