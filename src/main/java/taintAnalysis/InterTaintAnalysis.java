@@ -16,13 +16,15 @@ public class InterTaintAnalysis {
     private final List<Taint> sources;
     private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
+    private final TaintWrapper taintWrapper;
 
-    public InterTaintAnalysis(Scene scene, ConfigInterface configInterface) {
+    public InterTaintAnalysis(Scene scene, ConfigInterface configInterface, TaintWrapper taintWrapper) {
         this.scene = scene;
         this.configInterface = configInterface;
         this.sources = new ArrayList<>();
         this.methodSummary = new HashMap<>();
         this.methodTaintCache = new HashMap<>();
+        this.taintWrapper = taintWrapper;
     }
 
     public void doAnalysis() {
@@ -44,7 +46,8 @@ public class InterTaintAnalysis {
         logger.info("Num of methods: {}", methodList.size());
         for (SootMethod sm : methodList) {
             Body b = sm.retrieveActiveBody();
-            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(), methodSummary, methodTaintCache);
+            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(),
+                    methodSummary, methodTaintCache, taintWrapper);
             analysis.doAnalysis();
             sources.addAll(analysis.getSources());
         }
@@ -59,7 +62,8 @@ public class InterTaintAnalysis {
                 Set<Taint> entryTaints = new HashSet<>();
                 entryTaints.addAll(methodSummary.get(sm).keySet());
                 for (Taint entryTaint : entryTaints) {
-                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, entryTaint, methodSummary, methodTaintCache);
+                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, entryTaint,
+                            methodSummary, methodTaintCache, taintWrapper);
                     analysis.doAnalysis();
                     changed |= analysis.isChanged();
                 }

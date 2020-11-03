@@ -17,12 +17,14 @@ public class IntraAnalysisTransformer extends BodyTransformer {
     private final List<List<Taint>> sourceLists;
     private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
+    private final TaintWrapper taintWrapper;
 
-    public IntraAnalysisTransformer(ConfigInterface configInterface) {
+    public IntraAnalysisTransformer(ConfigInterface configInterface, TaintWrapper taintWrapper) {
         this.configInterface = configInterface;
         this.sourceLists = Collections.synchronizedList(new ArrayList<>());
         this.methodSummary = new HashMap<>();
         this.methodTaintCache = new HashMap<>();
+        this.taintWrapper = taintWrapper;
     }
 
     public ConfigInterface getConfigInterface() {
@@ -44,7 +46,8 @@ public class IntraAnalysisTransformer extends BodyTransformer {
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
         TaintFlowAnalysis analysis =
-                new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(), methodSummary, methodTaintCache);
+                new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(),
+                        methodSummary, methodTaintCache, taintWrapper);
         analysis.doAnalysis();
 
         List<Taint> lst = analysis.getSources();

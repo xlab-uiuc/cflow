@@ -12,9 +12,7 @@ import java.util.List;
 public class TaintAnalysisDriver {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    public TaintAnalysisDriver() {
-    }
+    private TaintWrapper taintWrapper = null;
 
     public IntraAnalysisTransformer runIntraTaintAnalysis(
             List<String> srcPaths, List<String> classPaths, ConfigInterface configInterface) {
@@ -42,7 +40,7 @@ public class TaintAnalysisDriver {
         }
 
         PackManager.v().getPack("jtp").add(
-                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface)));
+                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface, taintWrapper)));
 
         soot.Main.main(sootArgs);
 
@@ -55,7 +53,7 @@ public class TaintAnalysisDriver {
             List<String> srcPaths, List<String> classPaths, ConfigInterface configInterface) {
         G.reset();
 
-        String classPath = String.join(":", classPaths);
+        String classPath = String.join(":", srcPaths);
         String[] initArgs = {
                 // General Options
                 "-w",
@@ -83,13 +81,21 @@ public class TaintAnalysisDriver {
         }
 
         PackManager.v().getPack("wjtp").add(
-                new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(configInterface)));
+                new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(configInterface, taintWrapper)));
 
         soot.Main.main(sootArgs);
 
         InterAnalysisTransformer transformer = (InterAnalysisTransformer)
                 PackManager.v().getPack("wjtp").get("wjtp.taintanalysis").getTransformer();
         return transformer;
+    }
+
+    public TaintWrapper getTaintWrapper() {
+        return taintWrapper;
+    }
+
+    public void setTaintWrapper(TaintWrapper taintWrapper) {
+        this.taintWrapper = taintWrapper;
     }
 
 }

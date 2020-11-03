@@ -19,12 +19,16 @@ public class MainClass {
         nestedFieldTest.run();
 
         // Test recursive call
-//        RecursiveCallTest recursiveCallTest = new RecursiveCallTest();
-//        recursiveCallTest.run();
+        RecursiveCallTest recursiveCallTest = new RecursiveCallTest();
+        recursiveCallTest.run();
 
         // Test context sensitive path building
         ContextSensitivityTest contextSensitivityTest = new ContextSensitivityTest();
         contextSensitivityTest.run();
+
+        // Test taint wrapper for common external API calls
+        TaintWrapperTest taintWrapperTest = new TaintWrapperTest();
+        taintWrapperTest.run();
     }
 
 }
