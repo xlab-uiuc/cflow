@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootMethod;
+import soot.jimple.ReturnStmt;
 
 import java.util.HashSet;
 import java.util.List;
@@ -63,5 +64,4 @@ public class InterAnalysisTransformer extends SceneTransformer {
             dfs(succ, depth + 1, visited);
         }
     }
-
 }

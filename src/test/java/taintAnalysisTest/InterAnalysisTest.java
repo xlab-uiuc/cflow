@@ -53,5 +53,10 @@ public class InterAnalysisTest extends TaintAnalysisTest {
                 }
             }
         }
+
+        List<Taint> sources = transformer.getSources();
+        for (Taint t : sources) {
+            System.out.println(t.toString());
+        }
     }
 }
