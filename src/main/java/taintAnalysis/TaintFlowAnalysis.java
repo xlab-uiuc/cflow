@@ -27,16 +27,18 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private final Map<Taint, Taint> currTaintCache;
     private final List<Taint> sources;
     private final Set<String> basicParamTypeSet;
+    private final TaintWrapper taintWrapper;
 
     public TaintFlowAnalysis(Body body, ConfigInterface configInterface) {
-        this(body, configInterface, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>());
+        this(body, configInterface, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>(), null);
     }
 
     public TaintFlowAnalysis(Body body,
                              ConfigInterface configInterface,
                              Taint entryTaint,
                              Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary,
-                             Map<SootMethod, Map<Taint, Taint>> methodTaintCache) {
+                             Map<SootMethod, Map<Taint, Taint>> methodTaintCache,
+                             TaintWrapper taintWrapper) {
         super(new ExceptionalUnitGraph(body));
         this.body = body;
         this.method = body.getMethod();
@@ -45,6 +47,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         this.methodSummary = methodSummary;
         this.methodTaintCache = methodTaintCache;
         this.sources = new ArrayList<>();
+        this.taintWrapper = taintWrapper;
 
         // Sanity check
         assertNotNull(body);
@@ -104,7 +107,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             InvokeStmt stmt = (InvokeStmt) unit;
             InvokeExpr invoke = stmt.getInvokeExpr();
             if (!configInterface.isGetter(invoke)) {
-                visitInvoke(in, stmt, invoke, null, out);
+                visitInvoke(in, stmt, invoke, out);
             }
         }
 
@@ -118,7 +121,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
         // KILL
         for (Taint t : in) {
-            if (t.taints(leftOp)) {
+            if (t.associatesWith(leftOp)) {
                 out.remove(t);
             }
         }
@@ -137,7 +140,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 }
                 out.add(newTaint);
             } else {
-                visitInvoke(in, stmt, stmt.getInvokeExpr(), leftOp, out);
+                visitInvoke(in, stmt, stmt.getInvokeExpr(), out);
             }
         } else {
             for (Taint t : in) {
@@ -159,11 +162,16 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
     }
 
-    private void visitInvoke(Set<Taint> in, Stmt stmt, InvokeExpr invoke, Value retVal, Set<Taint> out) {
+    private void visitInvoke(Set<Taint> in, Stmt stmt, InvokeExpr invoke, Set<Taint> out) {
         SootMethod callee = invoke.getMethod();
-//        logger.info("visit invoke {}", invoke);
-        // Sanity check
         assertNotNull(callee);
+
+        // Check if taint wrapper applies
+        if (taintWrapper != null && taintWrapper.supportsCallee(callee)) {
+            changed |= taintWrapper.getTaintsForMethodInternal(in, stmt, method, invoke, out, currTaintCache);
+            return;
+        }
+
         if (!callee.hasActiveBody()) {
             return;
         }
@@ -175,6 +183,12 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         if (invoke instanceof InstanceInvokeExpr) {
             base = ((InstanceInvokeExpr) invoke).getBase();
             calleeThisLocal = calleeBody.getThisLocal();
+        }
+
+        // Get the retVal of this invocation in caller (if applies)
+        Value retVal = null;
+        if (stmt instanceof AssignStmt) {
+            retVal = ((AssignStmt) stmt).getLeftOp();
         }
 
         // Initialize methodSummary and methodTaintCache for callee (if not done yet)

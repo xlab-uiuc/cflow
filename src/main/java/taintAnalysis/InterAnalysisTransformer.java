@@ -19,8 +19,8 @@ public class InterAnalysisTransformer extends SceneTransformer {
 
     private final InterTaintAnalysis analysis;
 
-    public InterAnalysisTransformer(ConfigInterface configInterface) {
-        this.analysis = new InterTaintAnalysis(Scene.v(), configInterface);
+    public InterAnalysisTransformer(ConfigInterface configInterface, TaintWrapper taintWrapper) {
+        this.analysis = new InterTaintAnalysis(Scene.v(), configInterface, taintWrapper);
     }
 
     public ConfigInterface getConfigInterface() {
@@ -44,8 +44,8 @@ public class InterAnalysisTransformer extends SceneTransformer {
         analysis.doAnalysis();
 
         logger.info("Number of sources: {}", analysis.getSources().size());
-        Set<Taint> visited = new HashSet<>();
         for (Taint source : analysis.getSources()) {
+            Set<Taint> visited = new HashSet<>();
             System.out.println("source");
             dfs(source, 0, visited);
         }

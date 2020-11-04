@@ -2,6 +2,7 @@ import checking.*;
 import configInterface.ConfigInterface;
 import org.apache.commons.cli.*;
 import taintAnalysis.TaintAnalysisDriver;
+import taintAnalysis.TaintWrapper;
 import utility.Config;
 
 import java.io.File;
@@ -89,7 +90,7 @@ public class Main {
         }
     }
 
-    private static void run(String[][] considered, boolean intra) {
+    private static void run(String[][] considered, boolean intra) throws IOException {
         List<String> srcPaths = new LinkedList<>();
         List<String> classPaths = new LinkedList<>();
         ConfigInterface configInterface = null;
@@ -102,28 +103,12 @@ public class Main {
 
         // Run taint analysis
         TaintAnalysisDriver driver = new TaintAnalysisDriver();
+        driver.setTaintWrapper(TaintWrapper.getDefault());
         if (intra) {
             driver.runIntraTaintAnalysis(srcPaths, classPaths, configInterface);
         } else {
             driver.runInterTaintAnalysis(srcPaths, classPaths, configInterface);
         }
-
-//         // Run checking
-//        runChecking(configInterface, results, considered);
     }
-//
-//    private static void runChecking(ConfigInterface configInterface, InfoflowResults results, String[][] considered) throws IOException, SAXException, ParserConfigurationException {
-//        //CheckPass dataTypeChk = new DataTypeChk();
-//        //dataTypeChk.runChecking(configInterface, results, considered);
-//
-//        //CheckPass defaultValueChk = new DefaultValueChk();
-//        //defaultValueChk.runChecking(configInterface, results, considered);
-//
-//        CheckPass casePass = new CaseSensitivityChk();
-//        casePass.runChecking(configInterface, results, considered);
-//
-//        //CheckPass unusedParamPass = new UnusedParamChk();
-//        //unusedParamPass.runChecking(configInterface, results, considered);
-//    }
-//
+
 }
