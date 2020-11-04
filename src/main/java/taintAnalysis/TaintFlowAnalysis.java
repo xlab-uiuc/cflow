@@ -327,7 +327,10 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
             // Check if t taints return value
             if (retVal != null && t.associatesWith(retVal)) {
-                summary.get(1).add(t);
+                // add return stmt taint as successor
+                Taint newTaint = new Taint(retVal, stmt, method);
+                t.addSuccessor(newTaint);
+                summary.get(1).add(newTaint);
             }
 
             // Check if t taints object-type parameters
