@@ -29,6 +29,9 @@ public class MainClass {
         // Test taint wrapper for common external API calls
         TaintWrapperTest taintWrapperTest = new TaintWrapperTest();
         taintWrapperTest.run();
+
+        ConditionalFlowTest conditionalFlowTest = new ConditionalFlowTest();
+        conditionalFlowTest.run();
     }
 
 }

@@ -114,6 +114,10 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         if (unit instanceof ReturnStmt || unit instanceof ReturnVoidStmt) {
             visitReturn(in, (Stmt) unit, out);
         }
+
+        if (unit instanceof IfStmt) {
+            visitIf(in, (IfStmt) unit, out);
+        }
     }
 
     private void visitAssign(Set<Taint> in, AssignStmt stmt, Set<Taint> out) {
@@ -333,6 +337,25 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 String paramType = paramLocal.getType().toString();
                 if (!basicParamTypeSet.contains(paramType) && t.associatesWith(paramLocal)) {
                     summary.get(2 + i).add(t);
+                }
+            }
+        }
+    }
+
+    private void visitIf(Set<Taint> in, IfStmt stmt, Set<Taint> out) {
+        for (Taint t : in) {
+            for (ValueBox box : stmt.getUseBoxes()) {
+                Value value = box.getValue();
+                if (t.taints(value)) {
+                    Taint newTaint = new Taint(t.getValue(), stmt, method);
+                    if (currTaintCache.containsKey(newTaint)) {
+                        newTaint = currTaintCache.get(newTaint);
+                    } else {
+                        changed = true;
+                        currTaintCache.put(newTaint, newTaint);
+                    }
+                    t.addSuccessor(newTaint);
+                    out.add(newTaint);
                 }
             }
         }
