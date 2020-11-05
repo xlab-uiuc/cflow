@@ -329,6 +329,12 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             if (retVal != null && t.associatesWith(retVal)) {
                 // add return stmt taint as successor
                 Taint newTaint = new Taint(retVal, stmt, method);
+                if (currTaintCache.containsKey(newTaint)) {
+                    newTaint = currTaintCache.get(newTaint);
+                } else {
+                    changed = true;
+                    currTaintCache.put(newTaint, newTaint);
+                }
                 t.addSuccessor(newTaint);
                 summary.get(1).add(newTaint);
             }
