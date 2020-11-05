@@ -1,15 +1,15 @@
 package taintAnalysis;
 
-import configInterface.ConfigInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootMethod;
-import soot.jimple.AssignStmt;
 import soot.jimple.InvokeStmt;
 import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.taintWrapper.ITaintWrapper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,12 +22,8 @@ public class InterAnalysisTransformer extends SceneTransformer {
 
     private final InterTaintAnalysis analysis;
 
-    public InterAnalysisTransformer(ConfigInterface configInterface, TaintWrapper taintWrapper) {
-        this.analysis = new InterTaintAnalysis(Scene.v(), configInterface, taintWrapper);
-    }
-
-    public ConfigInterface getConfigInterface() {
-        return analysis.getConfigInterface();
+    public InterAnalysisTransformer(ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
+        this.analysis = new InterTaintAnalysis(Scene.v(), sourceSinkManager, taintWrapper);
     }
 
     public List<Taint> getSources() {
@@ -55,10 +51,10 @@ public class InterAnalysisTransformer extends SceneTransformer {
     }
 
     private void dfs(Taint t, int depth, Set<Taint> visited, SootMethod callerMethod) {
-//        if (visited.contains(t)) {
-//            return;
-//        }
-//        visited.add(t);
+        if (visited.contains(t)) {
+            return;
+        }
+        visited.add(t);
         for (int i = 0; i < depth; i++) {
             System.out.print("-");
         }

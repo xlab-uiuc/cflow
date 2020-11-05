@@ -8,11 +8,12 @@ import soot.SootMethod;
 import soot.jimple.Stmt;
 import taintAnalysis.Taint;
 import taintAnalysis.TaintAnalysisDriver;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.sourceSinkManager.SourceSinkManager;
 
 import java.util.*;
 
-
-//public class HadoopIntraAnalysisTest extends TaintAnalysisTest {
+public class HadoopIntraAnalysisTest extends TaintAnalysisTest {
 //
 //    @Test
 //    public void testIntraAnalysisHadoop() {
@@ -21,8 +22,9 @@ import java.util.*;
 //        List<String> srcPaths = new ArrayList<>();
 //        srcPaths.add(hadoopJar);
 //        ConfigInterface configInterface = new HadoopInterface();
-//        TaintAnalysisDriver driver = new TaintAnalysisDriver();
-//        List<List<Taint>> results = driver.runIntraTaintAnalysis(srcPaths, srcPaths, configInterface).getSourceLists();
+//        ISourceSinkManager sourceSinkManager = new SourceSinkManager(configInterface);
+//        TaintAnalysisDriver driver = new TaintAnalysisDriver(sourceSinkManager);
+//        List<List<Taint>> results = driver.runIntraTaintAnalysis(srcPaths, srcPaths).getSourceLists();
 //        for (List<Taint> result : results) {
 ////            System.out.println("> result");
 //            if (result.size() > 0) {
@@ -59,4 +61,4 @@ import java.util.*;
 //            }
 //        }
 //    }
-//}
+}

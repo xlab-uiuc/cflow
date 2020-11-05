@@ -1,4 +1,4 @@
-package taintAnalysis;
+package taintAnalysis.taintWrapper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,8 +18,10 @@ import soot.jimple.AssignStmt;
 import soot.jimple.InstanceInvokeExpr;
 import soot.jimple.InvokeExpr;
 import soot.jimple.Stmt;
+import taintAnalysis.Taint;
 
 import static assertion.Assert.assertNotNull;
+import static assertion.Assert.assertTrue;
 
 
 /**
@@ -35,7 +37,7 @@ import static assertion.Assert.assertNotNull;
  * 4. KillTaint:    kill the taint if the base object is tainted
  * 5. Exclude:      excluded, do nothing
  */
-public class TaintWrapper {
+public class TaintWrapper implements ITaintWrapper {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -127,18 +129,21 @@ public class TaintWrapper {
                 taintWrapper.excludeList, taintWrapper.killList);
     }
 
-    public boolean getTaintsForMethodInternal(Set<Taint> in, Stmt stmt, SootMethod caller, InvokeExpr invoke,
-                                              Set<Taint> out, Map<Taint, Taint> currTaintCache) {
+    @Override
+    public void genTaintsForMethodInternal(Set<Taint> in, Stmt stmt, SootMethod caller, Set<Taint> out,
+                                           Map<Taint, Taint> taintCache) {
+        assertTrue(stmt.containsInvokeExpr());
+        InvokeExpr invoke = stmt.getInvokeExpr();
         SootMethod callee = invoke.getMethod();
         assertNotNull(callee);
 
         // Do not provide models for application classes
         if (callee.getDeclaringClass().isApplicationClass())
-            return false;
+            return;
 
         MethodWrapType wrapType = getMethodWrapType(callee);
         if (wrapType == MethodWrapType.Exclude)
-            return false;
+            return;
 
         // Get the base object of this invocation in caller and the corresponding this object in callee (if exists)
         Value base = null;
@@ -151,8 +156,6 @@ public class TaintWrapper {
         if (stmt instanceof AssignStmt) {
             retVal = ((AssignStmt) stmt).getLeftOp();
         }
-
-        boolean changed = false;
 
         for (Taint t : in) {
             boolean baseTainted = false;
@@ -182,13 +185,7 @@ public class TaintWrapper {
                     if (t.associatesWith(base)) {
                         out.remove(t);
                     }
-                    Taint newTaint = new Taint(base, stmt, caller);
-                    if (currTaintCache.containsKey(newTaint)) {
-                        newTaint = currTaintCache.get(newTaint);
-                    } else {
-                        changed = true;
-                        currTaintCache.put(newTaint, newTaint);
-                    }
+                    Taint newTaint = Taint.getTaintFor(base, stmt, caller, taintCache);
                     t.addSuccessor(newTaint);
                     out.add(newTaint);
                 }
@@ -197,22 +194,15 @@ public class TaintWrapper {
                 if (retVal != null && (baseTainted ||
                         wrapType == MethodWrapType.TaintBoth ||
                         wrapType == MethodWrapType.TaintReturn)) {
-                    Taint newTaint = new Taint(retVal, stmt, caller);
-                    if (currTaintCache.containsKey(newTaint)) {
-                        newTaint = currTaintCache.get(newTaint);
-                    } else {
-                        changed = true;
-                        currTaintCache.put(newTaint, newTaint);
-                    }
+                    Taint newTaint = Taint.getTaintFor(retVal, stmt, caller, taintCache);
                     t.addSuccessor(newTaint);
                     out.add(newTaint);
                 }
             }
         }
-
-        return changed;
     }
 
+    @Override
     public boolean supportsCallee(SootMethod method) {
         if (!method.getDeclaringClass().isApplicationClass())
             return true;
