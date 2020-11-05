@@ -19,6 +19,7 @@ public class Taint {
     private final Stmt stmt;
     private final SootMethod method;
     private final Set<Taint> successors;
+    private final boolean methodContextSwitched;
 
     public Taint(Value value, Stmt stmt) {
         this(value, stmt, null, new HashSet<>());
@@ -33,6 +34,7 @@ public class Taint {
         this.stmt = stmt;
         this.method = method;
         this.successors = successors;
+        this.methodContextSwitched = false;
 
         if (value instanceof InstanceFieldRef) {
             InstanceFieldRef fieldRef = (InstanceFieldRef) value;
@@ -44,6 +46,9 @@ public class Taint {
         }
     }
 
+    /**
+     * Used solely by transferTaintTo.
+     */
     private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors) {
         this.value = value;
         this.base = base;
@@ -51,6 +56,7 @@ public class Taint {
         this.stmt = stmt;
         this.method = method;
         this.successors = successors;
+        this.methodContextSwitched = true;
     }
 
     public static Taint getEmptyTaint() {
@@ -61,7 +67,9 @@ public class Taint {
         return value == null;
     }
 
-    // taints is field-sensitive
+    /**
+     * taints is field-sensitive.
+     */
     public boolean taints(Value v) {
         // Empty taint doesn't taint anything
         if (isEmpty()) return false;
@@ -83,7 +91,9 @@ public class Taint {
         return value.equivTo(v);
     }
 
-    // associatesWith is field-insensitive
+    /**
+     * associatesWith is field-insensitive.
+     */
     public boolean associatesWith(Value v) {
         return taints(v) || (base != null && base.equivTo(v));
     }
@@ -122,6 +132,10 @@ public class Taint {
 
     public void addSuccessor(Taint successor) {
         this.successors.add(successor);
+    }
+
+    public boolean isMethodContextSwitched() {
+        return methodContextSwitched;
     }
 
     @Override
