@@ -43,52 +43,40 @@ public class InterAnalysisTransformer extends SceneTransformer {
         for (Taint source : analysis.getSources()) {
             System.out.println("source");
 
-            HashSet<Taint> ancestors = new HashSet<>();
-            dfs(source, 0, ancestors, null);
-
-//            dfs(source, 0, null);
+            HashSet<SootMethod> historyCallers = new HashSet<>();
+            dfs(source, 0, historyCallers, null);
         }
     }
 
-    private void dfs(Taint t, int depth, HashSet<Taint> ancestors, SootMethod callerMethod) {
+    private void dfs(Taint t, int depth, HashSet<SootMethod> historyCallers, SootMethod callerMethod) {
         for (int i = 0; i < depth; i++) {
             System.out.print("-");
         }
         System.out.println(t);
+
         Stmt curStmt = t.getStmt();
-        for (Taint succ : t.getSuccessors()) {
-            if (!ancestors.contains(succ)) {
-                if (curStmt instanceof InvokeStmt) {
-                    ancestors.add(t);
-                    dfs(succ,depth + 1, ancestors, curStmt.getInvokeExpr().getMethod());
-                } else if (curStmt instanceof ReturnStmt) {
-                    if (callerMethod == succ.getMethod()) {
-                        ancestors.add(t);
-                        dfs(succ, depth + 1, ancestors, null);
-                    }
-                } else {
-                    ancestors.add(t);
-                    dfs(succ, depth + 1, ancestors, callerMethod);
-                }
+        SootMethod recursiveCallee = null;
+        if (curStmt.containsInvokeExpr()) {
+            System.out.println(historyCallers);
+            SootMethod callee = curStmt.getInvokeExpr().getMethod();
+            System.out.println("caller: " + t.getMethod() + " -> callee: " + callee);
+            historyCallers.add(t.getMethod());
+            if (historyCallers.contains(callee)) {
+                recursiveCallee = callee;
             }
         }
-    }
-
-    private void dfs(Taint t, int depth, SootMethod callerMethod) {
-        for (int i = 0; i < depth; i++) {
-            System.out.print("-");
-        }
-        System.out.println(t);
-        Stmt curStmt = t.getStmt();
         for (Taint succ : t.getSuccessors()) {
-            if (curStmt instanceof InvokeStmt) {
-                dfs(succ, depth + 1, curStmt.getInvokeExpr().getMethod());
-            } else if (curStmt instanceof ReturnStmt) {
-                if (callerMethod == succ.getMethod()) {
-                    dfs(succ, depth + 1, null);
+            System.out.println("succ method: " + succ.getMethod() + " <<>> recur callee: " + recursiveCallee);
+            if (succ.getMethod() != recursiveCallee) {
+                if (curStmt instanceof InvokeStmt) {
+                    dfs(succ, depth + 1, historyCallers, curStmt.getInvokeExpr().getMethod());
+                } else if (curStmt instanceof ReturnStmt) {
+                    if (callerMethod == succ.getMethod()) {
+                        dfs(succ, depth + 1, historyCallers, null);
+                    }
+                } else {
+                    dfs(succ, depth + 1, historyCallers, callerMethod);
                 }
-            } else {
-                dfs(succ, depth + 1, callerMethod);
             }
         }
     }
