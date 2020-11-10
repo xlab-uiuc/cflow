@@ -57,7 +57,7 @@ public class InterAnalysisTransformer extends SceneTransformer {
         Stmt curStmt = t.getStmt();
         SootMethod recursiveCallee = null;
         if (curStmt.containsInvokeExpr()) {
-            System.out.println(historyCallers);
+//            System.out.println(historyCallers);
             SootMethod callee = curStmt.getInvokeExpr().getMethod();
 //            System.out.println("caller: " + t.getMethod() + " -> callee: " + callee);
             historyCallers.add(t.getMethod());
