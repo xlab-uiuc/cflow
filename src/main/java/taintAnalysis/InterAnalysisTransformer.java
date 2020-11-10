@@ -42,9 +42,10 @@ public class InterAnalysisTransformer extends SceneTransformer {
         logger.info("Number of sources: {}", analysis.getSources().size());
         for (Taint source : analysis.getSources()) {
             System.out.println("source");
-
-            HashSet<SootMethod> historyCallers = new HashSet<>();
-            dfs(source, 0, historyCallers, null);
+            PathVisitor pathVisitor = new PathVisitor();
+            pathVisitor.visit(source);
+//            HashSet<SootMethod> historyCallers = new HashSet<>();
+//            dfs(source, 0, historyCallers, null);
         }
     }
 
