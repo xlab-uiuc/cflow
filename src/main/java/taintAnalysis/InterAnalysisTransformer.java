@@ -59,14 +59,14 @@ public class InterAnalysisTransformer extends SceneTransformer {
         if (curStmt.containsInvokeExpr()) {
             System.out.println(historyCallers);
             SootMethod callee = curStmt.getInvokeExpr().getMethod();
-            System.out.println("caller: " + t.getMethod() + " -> callee: " + callee);
+//            System.out.println("caller: " + t.getMethod() + " -> callee: " + callee);
             historyCallers.add(t.getMethod());
             if (historyCallers.contains(callee)) {
                 recursiveCallee = callee;
             }
         }
         for (Taint succ : t.getSuccessors()) {
-            System.out.println("succ method: " + succ.getMethod() + " <<>> recur callee: " + recursiveCallee);
+//            System.out.println("succ method: " + succ.getMethod() + " <<>> recur callee: " + recursiveCallee);
             if (succ.getMethod() != recursiveCallee) {
                 if (curStmt instanceof InvokeStmt) {
                     dfs(succ, depth + 1, historyCallers, curStmt.getInvokeExpr().getMethod());
