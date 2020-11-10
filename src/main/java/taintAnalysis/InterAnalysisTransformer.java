@@ -11,10 +11,7 @@ import soot.jimple.Stmt;
 import taintAnalysis.sourceSinkManager.ISourceSinkManager;
 import taintAnalysis.taintWrapper.ITaintWrapper;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class InterAnalysisTransformer extends SceneTransformer {
 
@@ -44,17 +41,40 @@ public class InterAnalysisTransformer extends SceneTransformer {
 
         logger.info("Number of sources: {}", analysis.getSources().size());
         for (Taint source : analysis.getSources()) {
-            Set<Taint> visited = new HashSet<>();
             System.out.println("source");
-            dfs(source, 0, visited, null);
+
+            HashSet<Taint> ancestors = new HashSet<>();
+            dfs(source, 0, ancestors, null);
+
+//            dfs(source, 0, null);
         }
     }
 
-    private void dfs(Taint t, int depth, Set<Taint> visited, SootMethod callerMethod) {
-        if (visited.contains(t)) {
-            return;
+    private void dfs(Taint t, int depth, HashSet<Taint> ancestors, SootMethod callerMethod) {
+        for (int i = 0; i < depth; i++) {
+            System.out.print("-");
         }
-        visited.add(t);
+        System.out.println(t);
+        Stmt curStmt = t.getStmt();
+        for (Taint succ : t.getSuccessors()) {
+            if (!ancestors.contains(succ)) {
+                if (curStmt instanceof InvokeStmt) {
+                    ancestors.add(t);
+                    dfs(succ,depth + 1, ancestors, curStmt.getInvokeExpr().getMethod());
+                } else if (curStmt instanceof ReturnStmt) {
+                    if (callerMethod == succ.getMethod()) {
+                        ancestors.add(t);
+                        dfs(succ, depth + 1, ancestors, null);
+                    }
+                } else {
+                    ancestors.add(t);
+                    dfs(succ, depth + 1, ancestors, callerMethod);
+                }
+            }
+        }
+    }
+
+    private void dfs(Taint t, int depth, SootMethod callerMethod) {
         for (int i = 0; i < depth; i++) {
             System.out.print("-");
         }
@@ -62,13 +82,13 @@ public class InterAnalysisTransformer extends SceneTransformer {
         Stmt curStmt = t.getStmt();
         for (Taint succ : t.getSuccessors()) {
             if (curStmt instanceof InvokeStmt) {
-                dfs(succ, depth + 1, visited, curStmt.getInvokeExpr().getMethod());
+                dfs(succ, depth + 1, curStmt.getInvokeExpr().getMethod());
             } else if (curStmt instanceof ReturnStmt) {
                 if (callerMethod == succ.getMethod()) {
-                    dfs(succ, depth + 1, visited, null);
+                    dfs(succ, depth + 1, null);
                 }
             } else {
-                dfs(succ, depth + 1, visited, callerMethod);
+                dfs(succ, depth + 1, callerMethod);
             }
         }
     }
