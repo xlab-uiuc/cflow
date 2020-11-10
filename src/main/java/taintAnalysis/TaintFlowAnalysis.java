@@ -338,6 +338,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (ValueBox box : stmt.getUseBoxes()) {
                 Value value = box.getValue();
                 if (t.taints(value)) {
+                    out.remove(t);
                     Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
                     t.addSuccessor(newTaint);
                     out.add(newTaint);
