@@ -8,6 +8,7 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 import taintAnalysis.sourceSinkManager.ISourceSinkManager;
 import taintAnalysis.taintWrapper.ITaintWrapper;
+import taintAnalysis.utility.PhantomRetStmt;
 
 import java.util.*;
 
@@ -29,6 +30,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private final Map<Taint, Taint> currTaintCache;
     private final List<Taint> sources;
     private final Set<String> basicParamTypeSet;
+    private final PhantomRetStmt phantomRetStmt;
 
     public TaintFlowAnalysis(Body body, ISourceSinkManager sourceSinkManager) {
         this(body, sourceSinkManager, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>(), null);
@@ -49,6 +51,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         this.methodTaintCache = methodTaintCache;
         this.sources = new ArrayList<>();
         this.taintWrapper = taintWrapper;
+        this.phantomRetStmt = PhantomRetStmt.getInstance(method);
 
         // Sanity check
         assertNotNull(body);
@@ -265,7 +268,8 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                                       Map<Taint, Taint> calleeTaintCache,
                                       List<Set<Taint>> summary) {
         // Send caller taint to callee
-        Taint calleeTaint = Taint.getTransferredTaintFor(callerTaint, calleeVal, stmt, method, calleeTaintCache);
+        Taint calleeTaint = Taint.getTransferredTaintFor(
+                callerTaint, calleeVal, stmt, method, calleeTaintCache, Taint.TransferType.Call);
         callerTaint.addSuccessor(calleeTaint);
 
         // Receive callee taint summary for the sent caller taint
@@ -281,7 +285,8 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void genTaintsFromInvokeSummary(Set<Taint> taints, Value callerVal, Stmt stmt, Set<Taint> out) {
         for (Taint t : taints) {
-            Taint callerTaint = Taint.getTransferredTaintFor(t, callerVal, stmt, method, currTaintCache);
+            Taint callerTaint = Taint.getTransferredTaintFor(
+                    t, callerVal, stmt, method, currTaintCache, Taint.TransferType.Return);
             t.addSuccessor(callerTaint);
             out.add(callerTaint);
         }
@@ -307,14 +312,14 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         for (Taint t : in) {
             // Check if t taints base object
             if (thiz != null && t.associatesWith(thiz)) {
-                Taint newTaint = Taint.getTaintFor(thiz, stmt, method, currTaintCache);
+                Taint newTaint = Taint.getTaintFor(thiz, phantomRetStmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 changed |= summary.get(0).add(newTaint);
             }
 
             // Check if t taints return value
             if (retVal != null && t.associatesWith(retVal)) {
-                Taint newTaint = Taint.getTaintFor(retVal, stmt, method, currTaintCache);
+                Taint newTaint = Taint.getTaintFor(retVal, phantomRetStmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 changed |= summary.get(1).add(newTaint);
             }
@@ -325,7 +330,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 // Check if the param is basic type (we should not taint them in that case)
                 String paramType = paramLocal.getType().toString();
                 if (!basicParamTypeSet.contains(paramType) && t.associatesWith(paramLocal)) {
-                    Taint newTaint = Taint.getTaintFor(paramLocal, stmt, method, currTaintCache);
+                    Taint newTaint = Taint.getTaintFor(paramLocal, phantomRetStmt, method, currTaintCache);
                     t.addSuccessor(newTaint);
                     changed |= summary.get(2 + i).add(newTaint);
                 }

@@ -12,6 +12,12 @@ import java.util.Set;
 
 public class Taint {
 
+    public enum TransferType {
+        None,
+        Call,
+        Return
+    }
+
     private static final Taint emptyTaint = new Taint(null, null, null);
 
     private final Value value;
@@ -20,7 +26,7 @@ public class Taint {
     private final Stmt stmt;
     private final SootMethod method;
     private final Set<Taint> successors;
-    private final boolean methodContextSwitched;
+    private final TransferType transferType;
 
     public static Taint getEmptyTaint() {
         return emptyTaint;
@@ -57,11 +63,13 @@ public class Taint {
      * @param method        the method context of the taint
      * @param taintCache    the taint cache of the method into which the taint is transferred,
      *                      used to ensure global uniqueness
+     * @param transferType  the type of method context transfer, either TransferType.Call or
+     *                      TransferType.Return
      * @return The corresponding globally unique taint object after transfer
      */
     public static Taint getTransferredTaintFor(Taint t, Value v, Stmt stmt, SootMethod method,
-                                         Map<Taint, Taint> taintCache) {
-        Taint newTaint = t.transferTaintTo(v, stmt, method);
+                                               Map<Taint, Taint> taintCache, TransferType transferType) {
+        Taint newTaint = t.transferTaintTo(v, stmt, method, transferType);
         if (taintCache.containsKey(newTaint)) {
             newTaint = taintCache.get(newTaint);
         } else {
@@ -110,7 +118,7 @@ public class Taint {
         this.stmt = stmt;
         this.method = method;
         this.successors = successors;
-        this.methodContextSwitched = false;
+        this.transferType = TransferType.None;
 
         if (value instanceof InstanceFieldRef) {
             InstanceFieldRef fieldRef = (InstanceFieldRef) value;
@@ -122,25 +130,27 @@ public class Taint {
         }
     }
 
-    private Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
+    private Taint transferTaintTo(Value v, Stmt stmt, SootMethod method,
+                                  TransferType transferType) {
         if (base != null) {
-            return new Taint(v, v, field, stmt, method, new HashSet<>());
+            return new Taint(v, v, field, stmt, method, new HashSet<>(), transferType);
         } else {
-            return new Taint(v, null, null, stmt, method, new HashSet<>());
+            return new Taint(v, null, null, stmt, method, new HashSet<>(), transferType);
         }
     }
 
     /**
      * Used solely by transferTaintTo.
      */
-    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors) {
+    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors,
+                  TransferType transferType) {
         this.value = value;
         this.base = base;
         this.field = field;
         this.stmt = stmt;
         this.method = method;
         this.successors = successors;
-        this.methodContextSwitched = true;
+        this.transferType = transferType;
     }
 
     public boolean isEmpty() {
@@ -175,8 +185,8 @@ public class Taint {
         this.successors.add(successor);
     }
 
-    public boolean isMethodContextSwitched() {
-        return methodContextSwitched;
+    public TransferType getTransferType() {
+        return transferType;
     }
 
     @Override
@@ -200,12 +210,13 @@ public class Taint {
                 Objects.equals(base, taint.base) &&
                 Objects.equals(field, taint.field) &&
                 Objects.equals(stmt, taint.stmt) &&
-                Objects.equals(method, taint.method);
+                Objects.equals(method, taint.method) &&
+                transferType == taint.transferType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, base, field, stmt, method);
+        return Objects.hash(value, base, field, stmt, method, transferType);
     }
 
 }

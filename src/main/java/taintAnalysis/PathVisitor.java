@@ -1,10 +1,7 @@
 package taintAnalysis;
 
-import soot.SootMethod;
-import soot.jimple.AssignStmt;
-import soot.jimple.InvokeStmt;
-import soot.jimple.ReturnStmt;
 import soot.jimple.Stmt;
+import taintAnalysis.utility.PhantomRetStmt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +17,10 @@ public class PathVisitor {
 
     public void visit(Taint t) {
         Map<Taint, Color> status = new HashMap<>();
-        dfs(t, 0, status, new Stack<SootMethod>());
+        dfs(t, 0, status, new Stack<>());
     }
 
-    private void dfs(Taint t, int depth, Map<Taint, Color> status, Stack<SootMethod> callerStack) {
+    private void dfs(Taint t, int depth, Map<Taint, Color> status, Stack<Stmt> callerStack) {
         for (int i = 0; i < depth; i++) {
             System.out.print("-");
         }
@@ -33,30 +30,15 @@ public class PathVisitor {
         Stmt curStmt = t.getStmt();
         for (Taint successor : t.getSuccessors()) {
             if (status.get(successor) != Color.GREY) {
-                if (curStmt instanceof InvokeStmt) {
-                    SootMethod currMethod = t.getMethod();
-                    if (t.isMethodContextSwitched()) {
-//                        System.out.println("###pushing " + currMethod.toString());
-                        callerStack.push(currMethod);
-                        dfs(successor, depth + 1, status, callerStack);
-                    }
-                } else if (curStmt instanceof ReturnStmt && !callerStack.isEmpty()) {
-//                    System.out.println(callerStack.peek());
-//                    System.out.println(successor.getMethod());
-                    if (callerStack.peek() == successor.getMethod()) {
+                if (t.getTransferType() == Taint.TransferType.Call) {
+                    callerStack.push(t.getStmt());
+                    dfs(successor, depth + 1, status, callerStack);
+                } else if (curStmt instanceof PhantomRetStmt && !callerStack.isEmpty()) {
+                    if (callerStack.peek() == successor.getStmt()) {
                         callerStack.pop();
                         dfs(successor, depth+1, status, callerStack);
                     }
                 } else {
-                    // if assign stmt contains invoker expr push currMethod to callerStack
-                    if (curStmt.containsInvokeExpr()) {
-                        // if t is not the leftOp, then this assign stmt has already been visited
-                        // no need to push the method to the stack
-                        if (t.getValue() != ((AssignStmt)curStmt).getLeftOp()) {
-                            SootMethod currMethod = t.getMethod();
-                            callerStack.push(currMethod);
-                        }
-                    }
                     dfs(successor, depth + 1, status, callerStack);
                 }
             }
