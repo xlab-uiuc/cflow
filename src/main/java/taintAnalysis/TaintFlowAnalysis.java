@@ -1,12 +1,13 @@
 package taintAnalysis;
 
-import configInterface.ConfigInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
 import soot.jimple.*;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.taintWrapper.ITaintWrapper;
 
 import java.util.*;
 
@@ -19,7 +20,8 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private boolean changed = false;
     private final Body body;
     private final SootMethod method;
-    private final ConfigInterface configInterface;
+    private final ISourceSinkManager sourceSinkManager;
+    private final ITaintWrapper taintWrapper;
     private final Taint entryTaint;
     private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<Taint, List<Set<Taint>>> currMethodSummary;
@@ -27,22 +29,21 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private final Map<Taint, Taint> currTaintCache;
     private final List<Taint> sources;
     private final Set<String> basicParamTypeSet;
-    private final TaintWrapper taintWrapper;
 
-    public TaintFlowAnalysis(Body body, ConfigInterface configInterface) {
-        this(body, configInterface, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>(), null);
+    public TaintFlowAnalysis(Body body, ISourceSinkManager sourceSinkManager) {
+        this(body, sourceSinkManager, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>(), null);
     }
 
     public TaintFlowAnalysis(Body body,
-                             ConfigInterface configInterface,
+                             ISourceSinkManager sourceSinkManager,
                              Taint entryTaint,
                              Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary,
                              Map<SootMethod, Map<Taint, Taint>> methodTaintCache,
-                             TaintWrapper taintWrapper) {
+                             ITaintWrapper taintWrapper) {
         super(new ExceptionalUnitGraph(body));
         this.body = body;
         this.method = body.getMethod();
-        this.configInterface = configInterface;
+        this.sourceSinkManager = sourceSinkManager;
         this.entryTaint = entryTaint;
         this.methodSummary = methodSummary;
         this.methodTaintCache = methodTaintCache;
@@ -51,7 +52,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
         // Sanity check
         assertNotNull(body);
-        assertNotNull(configInterface);
+        assertNotNull(sourceSinkManager);
         assertNotNull(entryTaint);
         assertNotNull(methodSummary);
         assertNotNull(methodTaintCache);
@@ -73,7 +74,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
 
         // initialize basic param type set
-        this.basicParamTypeSet = new HashSet<String>(Arrays.asList(
+        this.basicParamTypeSet = new HashSet<>(Arrays.asList(
                 "int",
                 "float",
                 "long",
@@ -99,24 +100,29 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         out.clear();
         out.addAll(in);
 
-        if (unit instanceof AssignStmt) {
-            visitAssign(in, (AssignStmt) unit, out);
+        Stmt stmt = (Stmt) unit;
+
+        if (stmt instanceof AssignStmt) {
+            visitAssign(in, (AssignStmt) stmt, out);
         }
 
-        if (unit instanceof InvokeStmt) {
-            InvokeStmt stmt = (InvokeStmt) unit;
+        if (stmt instanceof InvokeStmt) {
             InvokeExpr invoke = stmt.getInvokeExpr();
-            if (!configInterface.isGetter(invoke)) {
+            if (!sourceSinkManager.isSource(stmt)) {
                 visitInvoke(in, stmt, invoke, out);
             }
         }
 
-        if (unit instanceof ReturnStmt || unit instanceof ReturnVoidStmt) {
-            visitReturn(in, (Stmt) unit, out);
+        if (stmt instanceof ReturnStmt || stmt instanceof ReturnVoidStmt) {
+            visitReturn(in, stmt);
         }
 
-        if (unit instanceof IfStmt) {
-            visitIf(in, (IfStmt) unit, out);
+        if (stmt instanceof IfStmt) {
+            visitIf(in, (IfStmt) stmt, out);
+        }
+
+        if (sourceSinkManager.isSink(stmt)) {
+            visitSink(in, stmt);
         }
     }
 
@@ -133,31 +139,21 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         // GEN
         if (stmt.containsInvokeExpr()) {
             InvokeExpr invoke = stmt.getInvokeExpr();
-            if (configInterface.isGetter(invoke)) {
-                Taint newTaint = new Taint(leftOp, stmt, method);
-                if (currTaintCache.containsKey(newTaint)) {
-                    newTaint = currTaintCache.get(newTaint);
-                } else {
-                    changed = true;
+            if (sourceSinkManager.isSource(stmt)) {
+                Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
+                if (!sources.contains(newTaint)) {
                     sources.add(newTaint);
-                    currTaintCache.put(newTaint, newTaint);
                 }
                 out.add(newTaint);
             } else {
-                visitInvoke(in, stmt, stmt.getInvokeExpr(), out);
+                visitInvoke(in, stmt, invoke, out);
             }
         } else {
             for (Taint t : in) {
                 for (ValueBox box : stmt.getUseBoxes()) {
                     Value value = box.getValue();
                     if (t.taints(value)) {
-                        Taint newTaint = new Taint(leftOp, stmt, method);
-                        if (currTaintCache.containsKey(newTaint)) {
-                            newTaint = currTaintCache.get(newTaint);
-                        } else {
-                            changed = true;
-                            currTaintCache.put(newTaint, newTaint);
-                        }
+                        Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
                         t.addSuccessor(newTaint);
                         out.add(newTaint);
                     }
@@ -172,11 +168,12 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
         // Check if taint wrapper applies
         if (taintWrapper != null && taintWrapper.supportsCallee(callee)) {
-            changed |= taintWrapper.getTaintsForMethodInternal(in, stmt, method, invoke, out, currTaintCache);
+            taintWrapper.genTaintsForMethodInternal(in, stmt, method, out, currTaintCache);
             return;
         }
 
         if (!callee.hasActiveBody()) {
+            logger.debug("No active body for callee {} in {}", callee, method);
             return;
         }
         Body calleeBody = callee.getActiveBody();
@@ -268,13 +265,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                                       Map<Taint, Taint> calleeTaintCache,
                                       List<Set<Taint>> summary) {
         // Send caller taint to callee
-        Taint calleeTaint = callerTaint.transferTaintTo(calleeVal, stmt, method);
-        if (calleeTaintCache.containsKey(calleeTaint)) {
-            calleeTaint = calleeTaintCache.get(calleeTaint);
-        } else {
-            changed = true;
-            calleeTaintCache.put(calleeTaint, calleeTaint);
-        }
+        Taint calleeTaint = Taint.getTransferredTaintFor(callerTaint, calleeVal, stmt, method, calleeTaintCache);
         callerTaint.addSuccessor(calleeTaint);
 
         // Receive callee taint summary for the sent caller taint
@@ -290,19 +281,13 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void genTaintsFromInvokeSummary(Set<Taint> taints, Value callerVal, Stmt stmt, Set<Taint> out) {
         for (Taint t : taints) {
-            Taint callerTaint = t.transferTaintTo(callerVal, stmt, method);
-            if (currTaintCache.containsKey(callerTaint)) {
-                callerTaint = currTaintCache.get(callerTaint);
-            } else {
-                changed = true;
-                currTaintCache.put(callerTaint, callerTaint);
-            }
+            Taint callerTaint = Taint.getTransferredTaintFor(t, callerVal, stmt, method, currTaintCache);
             t.addSuccessor(callerTaint);
             out.add(callerTaint);
         }
     }
 
-    private void visitReturn(Set<Taint> in, Stmt stmt, Set<Taint> out) {
+    private void visitReturn(Set<Taint> in, Stmt stmt) {
         // Get the local representing @this (if exists)
         Local thiz = null;
         if (!body.getMethod().isStatic()) {
@@ -322,21 +307,16 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         for (Taint t : in) {
             // Check if t taints base object
             if (thiz != null && t.associatesWith(thiz)) {
-                summary.get(0).add(t);
+                Taint newTaint = Taint.getTaintFor(thiz, stmt, method, currTaintCache);
+                t.addSuccessor(newTaint);
+                changed |= summary.get(0).add(newTaint);
             }
 
             // Check if t taints return value
             if (retVal != null && t.associatesWith(retVal)) {
-                // add return stmt taint as successor
-                Taint newTaint = new Taint(retVal, stmt, method);
-                if (currTaintCache.containsKey(newTaint)) {
-                    newTaint = currTaintCache.get(newTaint);
-                } else {
-                    changed = true;
-                    currTaintCache.put(newTaint, newTaint);
-                }
+                Taint newTaint = Taint.getTaintFor(retVal, stmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
-                summary.get(1).add(newTaint);
+                changed |= summary.get(1).add(newTaint);
             }
 
             // Check if t taints object-type parameters
@@ -345,7 +325,9 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 // Check if the param is basic type (we should not taint them in that case)
                 String paramType = paramLocal.getType().toString();
                 if (!basicParamTypeSet.contains(paramType) && t.associatesWith(paramLocal)) {
-                    summary.get(2 + i).add(t);
+                    Taint newTaint = Taint.getTaintFor(paramLocal, stmt, method, currTaintCache);
+                    t.addSuccessor(newTaint);
+                    changed |= summary.get(2 + i).add(newTaint);
                 }
             }
         }
@@ -356,15 +338,22 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (ValueBox box : stmt.getUseBoxes()) {
                 Value value = box.getValue();
                 if (t.taints(value)) {
-                    Taint newTaint = new Taint(t.getValue(), stmt, method);
-                    if (currTaintCache.containsKey(newTaint)) {
-                        newTaint = currTaintCache.get(newTaint);
-                    } else {
-                        changed = true;
-                        currTaintCache.put(newTaint, newTaint);
-                    }
+                    out.remove(t);
+                    Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
                     t.addSuccessor(newTaint);
                     out.add(newTaint);
+                }
+            }
+        }
+    }
+
+    private void visitSink(Set<Taint> in, Stmt stmt) {
+        for (Taint t : in) {
+            for (ValueBox box : stmt.getUseBoxes()) {
+                Value value = box.getValue();
+                if (t.taints(value)) {
+                    Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
+                    t.addSuccessor(newTaint);
                 }
             }
         }

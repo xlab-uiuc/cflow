@@ -12,7 +12,6 @@
 <java.util.Map: java.lang.Object put(java.lang.Object,java.lang.Object)>
 <java.util.Map: java.lang.Object putAll(java.util.Map)>
 
-r<java.util.List: java.lang.Object get()>
 <java.util.List: boolean add(java.lang.Object)>
 <java.util.List: void add(int,java.lang.Object)>
 <java.util.List: boolean addAll(java.util.Collection)>

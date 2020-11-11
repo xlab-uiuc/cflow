@@ -1,8 +1,10 @@
-import checking.*;
 import configInterface.ConfigInterface;
 import org.apache.commons.cli.*;
 import taintAnalysis.TaintAnalysisDriver;
-import taintAnalysis.TaintWrapper;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.sourceSinkManager.SourceSinkManager;
+import taintAnalysis.taintWrapper.ITaintWrapper;
+import taintAnalysis.taintWrapper.TaintWrapper;
 import utility.Config;
 
 import java.io.File;
@@ -102,12 +104,13 @@ public class Main {
         }
 
         // Run taint analysis
-        TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        driver.setTaintWrapper(TaintWrapper.getDefault());
+        ISourceSinkManager sourceSinkManager = new SourceSinkManager(configInterface);
+        ITaintWrapper taintWrapper = TaintWrapper.getDefault();
+        TaintAnalysisDriver driver = new TaintAnalysisDriver(sourceSinkManager, taintWrapper);
         if (intra) {
-            driver.runIntraTaintAnalysis(srcPaths, classPaths, configInterface);
+            driver.runIntraTaintAnalysis(srcPaths, classPaths);
         } else {
-            driver.runInterTaintAnalysis(srcPaths, classPaths, configInterface);
+            driver.runInterTaintAnalysis(srcPaths, classPaths);
         }
     }
 

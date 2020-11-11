@@ -1,11 +1,12 @@
 package taintAnalysis;
 
-import configInterface.ConfigInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.SootMethod;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.taintWrapper.ITaintWrapper;
 
 import java.util.*;
 
@@ -13,22 +14,18 @@ public class IntraAnalysisTransformer extends BodyTransformer {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final ConfigInterface configInterface;
+    private final ISourceSinkManager sourceSinkManager;
+    private final ITaintWrapper taintWrapper;
     private final List<List<Taint>> sourceLists;
     private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
-    private final TaintWrapper taintWrapper;
 
-    public IntraAnalysisTransformer(ConfigInterface configInterface, TaintWrapper taintWrapper) {
-        this.configInterface = configInterface;
+    public IntraAnalysisTransformer(ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
+        this.sourceSinkManager = sourceSinkManager;
+        this.taintWrapper = taintWrapper;
         this.sourceLists = Collections.synchronizedList(new ArrayList<>());
         this.methodSummary = new HashMap<>();
         this.methodTaintCache = new HashMap<>();
-        this.taintWrapper = taintWrapper;
-    }
-
-    public ConfigInterface getConfigInterface() {
-        return configInterface;
     }
 
     public List<List<Taint>> getSourceLists() {
@@ -46,7 +43,7 @@ public class IntraAnalysisTransformer extends BodyTransformer {
     @Override
     protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
         TaintFlowAnalysis analysis =
-                new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(),
+                new TaintFlowAnalysis(b, sourceSinkManager, Taint.getEmptyTaint(),
                         methodSummary, methodTaintCache, taintWrapper);
         analysis.doAnalysis();
 

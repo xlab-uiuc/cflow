@@ -6,6 +6,7 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.Stmt;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,49 +20,59 @@ public class Taint {
     private final Stmt stmt;
     private final SootMethod method;
     private final Set<Taint> successors;
-
-    public Taint(Value value, Stmt stmt) {
-        this(value, stmt, null, new HashSet<>());
-    }
-
-    public Taint(Value value, Stmt stmt, SootMethod method) {
-        this(value, stmt, method, new HashSet<>());
-    }
-
-    public Taint(Value value, Stmt stmt, SootMethod method, Set<Taint> successors) {
-        this.value = value;
-        this.stmt = stmt;
-        this.method = method;
-        this.successors = successors;
-
-        if (value instanceof InstanceFieldRef) {
-            InstanceFieldRef fieldRef = (InstanceFieldRef) value;
-            this.base = fieldRef.getBase();
-            this.field = fieldRef.getField();
-        } else {
-            this.base = null;
-            this.field = null;
-        }
-    }
-
-    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors) {
-        this.value = value;
-        this.base = base;
-        this.field = field;
-        this.stmt = stmt;
-        this.method = method;
-        this.successors = successors;
-    }
+    private final boolean methodContextSwitched;
 
     public static Taint getEmptyTaint() {
         return emptyTaint;
     }
 
-    public boolean isEmpty() {
-        return value == null;
+    /**
+     * Gets a globally unique taint object for a given pair of value and its statement context
+     *
+     * @param v             the value which the taint is on
+     * @param stmt          the statement context of the taint
+     * @param method        the method context of the taint
+     * @param taintCache    the taint cache of the method into which the taint is transferred,
+     *                      used to ensure global uniqueness
+     * @return The corresponding globally unique taint object
+     */
+    public static Taint getTaintFor(Value v, Stmt stmt, SootMethod method,
+                              Map<Taint, Taint> taintCache) {
+        Taint newTaint = new Taint(v, stmt, method);
+        if (taintCache.containsKey(newTaint)) {
+            newTaint = taintCache.get(newTaint);
+        } else {
+            taintCache.put(newTaint, newTaint);
+        }
+        return newTaint;
     }
 
-    // taints is field-sensitive
+    /**
+     * Gets a globally unique taint object for a value in the callee/caller whose taint is
+     * transferred from a taint object in the caller/callee along call/return edges in the ICFG.
+     *
+     * @param t             the taint from which to transfer
+     * @param v             the value which the taint is on
+     * @param stmt          the statement context of the taint
+     * @param method        the method context of the taint
+     * @param taintCache    the taint cache of the method into which the taint is transferred,
+     *                      used to ensure global uniqueness
+     * @return The corresponding globally unique taint object after transfer
+     */
+    public static Taint getTransferredTaintFor(Taint t, Value v, Stmt stmt, SootMethod method,
+                                         Map<Taint, Taint> taintCache) {
+        Taint newTaint = t.transferTaintTo(v, stmt, method);
+        if (taintCache.containsKey(newTaint)) {
+            newTaint = taintCache.get(newTaint);
+        } else {
+            taintCache.put(newTaint, newTaint);
+        }
+        return newTaint;
+    }
+
+    /**
+     * taints is field-sensitive.
+     */
     public boolean taints(Value v) {
         // Empty taint doesn't taint anything
         if (isEmpty()) return false;
@@ -83,17 +94,57 @@ public class Taint {
         return value.equivTo(v);
     }
 
-    // associatesWith is field-insensitive
+    /**
+     * associatesWith is field-insensitive.
+     */
     public boolean associatesWith(Value v) {
         return taints(v) || (base != null && base.equivTo(v));
     }
 
-    public Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
+    private Taint(Value value, Stmt stmt, SootMethod method) {
+        this(value, stmt, method, new HashSet<>());
+    }
+
+    private Taint(Value value, Stmt stmt, SootMethod method, Set<Taint> successors) {
+        this.value = value;
+        this.stmt = stmt;
+        this.method = method;
+        this.successors = successors;
+        this.methodContextSwitched = false;
+
+        if (value instanceof InstanceFieldRef) {
+            InstanceFieldRef fieldRef = (InstanceFieldRef) value;
+            this.base = fieldRef.getBase();
+            this.field = fieldRef.getField();
+        } else {
+            this.base = null;
+            this.field = null;
+        }
+    }
+
+    private Taint transferTaintTo(Value v, Stmt stmt, SootMethod method) {
         if (base != null) {
             return new Taint(v, v, field, stmt, method, new HashSet<>());
         } else {
             return new Taint(v, null, null, stmt, method, new HashSet<>());
         }
+    }
+
+    /**
+     * Used solely by transferTaintTo.
+     */
+    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors) {
+        this.value = value;
+        this.base = base;
+        this.field = field;
+        this.stmt = stmt;
+        this.method = method;
+        this.successors = successors;
+        this.methodContextSwitched = true;
+    }
+
+    public boolean isEmpty() {
+        return value == null;
     }
 
     public Value getValue() {
@@ -122,6 +173,10 @@ public class Taint {
 
     public void addSuccessor(Taint successor) {
         this.successors.add(successor);
+    }
+
+    public boolean isMethodContextSwitched() {
+        return methodContextSwitched;
     }
 
     @Override

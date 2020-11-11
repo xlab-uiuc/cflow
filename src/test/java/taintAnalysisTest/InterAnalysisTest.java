@@ -1,10 +1,11 @@
 package taintAnalysisTest;
 
-import configInterface.ConfigInterface;
 import org.junit.Assert;
 import org.junit.Test;
 import soot.SootMethod;
 import taintAnalysis.*;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.sourceSinkManager.SourceSinkManager;
 import utility.Config;
 
 import java.util.List;
@@ -17,9 +18,9 @@ public class InterAnalysisTest extends TaintAnalysisTest {
         String[] cfg = Config.getCfg("test");
         List<String> srcPaths = Config.getSourcePaths(cfg);
         List<String> classPaths = Config.getClassPaths(cfg);
-        ConfigInterface configInterface = Config.getInterface(cfg);
-        TaintAnalysisDriver driver = new TaintAnalysisDriver();
-        InterAnalysisTransformer transformer = driver.runInterTaintAnalysis(srcPaths, classPaths, configInterface);
+        ISourceSinkManager sourceSinkManager = new SourceSinkManager(Config.getInterface(cfg));
+        TaintAnalysisDriver driver = new TaintAnalysisDriver(sourceSinkManager);
+        InterAnalysisTransformer transformer = driver.runInterTaintAnalysis(srcPaths, classPaths);
         Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary = transformer.getMethodSummary();
 
         for (SootMethod method : methodSummary.keySet()) {

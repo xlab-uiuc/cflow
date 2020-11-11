@@ -1,9 +1,10 @@
 package taintAnalysis;
 
-import configInterface.ConfigInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.taintWrapper.ITaintWrapper;
 
 import java.util.*;
 
@@ -12,19 +13,19 @@ public class InterTaintAnalysis {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Scene scene;
-    private final ConfigInterface configInterface;
+    private final ISourceSinkManager sourceSinkManager;
+    private final ITaintWrapper taintWrapper;
     private final List<Taint> sources;
     private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
-    private final TaintWrapper taintWrapper;
 
-    public InterTaintAnalysis(Scene scene, ConfigInterface configInterface, TaintWrapper taintWrapper) {
+    public InterTaintAnalysis(Scene scene, ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
         this.scene = scene;
-        this.configInterface = configInterface;
+        this.sourceSinkManager = sourceSinkManager;
+        this.taintWrapper = taintWrapper;
         this.sources = new ArrayList<>();
         this.methodSummary = new HashMap<>();
         this.methodTaintCache = new HashMap<>();
-        this.taintWrapper = taintWrapper;
     }
 
     public void doAnalysis() {
@@ -46,7 +47,7 @@ public class InterTaintAnalysis {
         logger.info("Num of methods: {}", methodList.size());
         for (SootMethod sm : methodList) {
             Body b = sm.retrieveActiveBody();
-            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, Taint.getEmptyTaint(),
+            TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, sourceSinkManager, Taint.getEmptyTaint(),
                     methodSummary, methodTaintCache, taintWrapper);
             analysis.doAnalysis();
             sources.addAll(analysis.getSources());
@@ -62,7 +63,7 @@ public class InterTaintAnalysis {
                 Set<Taint> entryTaints = new HashSet<>();
                 entryTaints.addAll(methodSummary.get(sm).keySet());
                 for (Taint entryTaint : entryTaints) {
-                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, configInterface, entryTaint,
+                    TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, sourceSinkManager, entryTaint,
                             methodSummary, methodTaintCache, taintWrapper);
                     analysis.doAnalysis();
                     changed |= analysis.isChanged();
@@ -71,14 +72,6 @@ public class InterTaintAnalysis {
             iter++;
         }
 
-    }
-
-    public Scene getScene() {
-        return scene;
-    }
-
-    public ConfigInterface getConfigInterface() {
-        return configInterface;
     }
 
     public List<Taint> getSources() {

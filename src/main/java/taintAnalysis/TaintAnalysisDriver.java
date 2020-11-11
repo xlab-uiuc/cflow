@@ -1,21 +1,28 @@
 package taintAnalysis;
 
-import configInterface.ConfigInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import soot.G;
 import soot.PackManager;
 import soot.Transform;
+import taintAnalysis.sourceSinkManager.ISourceSinkManager;
+import taintAnalysis.taintWrapper.ITaintWrapper;
 
 import java.util.List;
 
 public class TaintAnalysisDriver {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private TaintWrapper taintWrapper = null;
+    private ISourceSinkManager sourceSinkManager;
+    private ITaintWrapper taintWrapper;
 
-    public IntraAnalysisTransformer runIntraTaintAnalysis(
-            List<String> srcPaths, List<String> classPaths, ConfigInterface configInterface) {
+    public TaintAnalysisDriver(ISourceSinkManager sourceSinkManager) {
+        this(sourceSinkManager, null);
+    }
+
+    public TaintAnalysisDriver(ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
+        this.sourceSinkManager = sourceSinkManager;
+        this.taintWrapper = taintWrapper;
+    }
+
+    public IntraAnalysisTransformer runIntraTaintAnalysis(List<String> srcPaths, List<String> classPaths) {
         G.reset();
 
         String classPath = String.join(":", classPaths);
@@ -40,7 +47,7 @@ public class TaintAnalysisDriver {
         }
 
         PackManager.v().getPack("jtp").add(
-                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(configInterface, taintWrapper)));
+                new Transform("jtp.taintanalysis", new IntraAnalysisTransformer(sourceSinkManager, taintWrapper)));
 
         soot.Main.main(sootArgs);
 
@@ -49,11 +56,10 @@ public class TaintAnalysisDriver {
         return transformer;
     }
 
-    public InterAnalysisTransformer runInterTaintAnalysis(
-            List<String> srcPaths, List<String> classPaths, ConfigInterface configInterface) {
+    public InterAnalysisTransformer runInterTaintAnalysis(List<String> srcPaths, List<String> classPaths) {
         G.reset();
 
-        String classPath = String.join(":", srcPaths);
+        String classPath = String.join(":", classPaths);
         String[] initArgs = {
                 // General Options
                 "-w",
@@ -81,7 +87,7 @@ public class TaintAnalysisDriver {
         }
 
         PackManager.v().getPack("wjtp").add(
-                new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(configInterface, taintWrapper)));
+                new Transform("wjtp.taintanalysis", new InterAnalysisTransformer(sourceSinkManager, taintWrapper)));
 
         soot.Main.main(sootArgs);
 
@@ -90,11 +96,19 @@ public class TaintAnalysisDriver {
         return transformer;
     }
 
-    public TaintWrapper getTaintWrapper() {
+    public ISourceSinkManager getSourceSinkManager() {
+        return sourceSinkManager;
+    }
+
+    public void setSourceSinkManager(ISourceSinkManager sourceSinkManager) {
+        this.sourceSinkManager = sourceSinkManager;
+    }
+
+    public ITaintWrapper getTaintWrapper() {
         return taintWrapper;
     }
 
-    public void setTaintWrapper(TaintWrapper taintWrapper) {
+    public void setTaintWrapper(ITaintWrapper taintWrapper) {
         this.taintWrapper = taintWrapper;
     }
 
