@@ -49,36 +49,36 @@ public class InterAnalysisTransformer extends SceneTransformer {
         }
     }
 
-    private void dfs(Taint t, int depth, HashSet<SootMethod> historyCallers, SootMethod callerMethod) {
-        for (int i = 0; i < depth; i++) {
-            System.out.print("-");
-        }
-        System.out.println(t);
-
-        Stmt curStmt = t.getStmt();
-        SootMethod recursiveCallee = null;
-        if (curStmt.containsInvokeExpr()) {
-//            System.out.println(historyCallers);
-            SootMethod callee = curStmt.getInvokeExpr().getMethod();
-//            System.out.println("caller: " + t.getMethod() + " -> callee: " + callee);
-            historyCallers.add(t.getMethod());
-            if (historyCallers.contains(callee)) {
-                recursiveCallee = callee;
-            }
-        }
-        for (Taint succ : t.getSuccessors()) {
-//            System.out.println("succ method: " + succ.getMethod() + " <<>> recur callee: " + recursiveCallee);
-            if (succ.getMethod() != recursiveCallee) {
-                if (curStmt instanceof InvokeStmt) {
-                    dfs(succ, depth + 1, historyCallers, curStmt.getInvokeExpr().getMethod());
-                } else if (curStmt instanceof ReturnStmt) {
-                    if (callerMethod == succ.getMethod()) {
-                        dfs(succ, depth + 1, historyCallers, null);
-                    }
-                } else {
-                    dfs(succ, depth + 1, historyCallers, callerMethod);
-                }
-            }
-        }
-    }
+//    private void dfs(Taint t, int depth, HashSet<SootMethod> historyCallers, SootMethod callerMethod) {
+//        for (int i = 0; i < depth; i++) {
+//            System.out.print("-");
+//        }
+//        System.out.println(t);
+//
+//        Stmt curStmt = t.getStmt();
+//        SootMethod recursiveCallee = null;
+//        if (curStmt.containsInvokeExpr()) {
+////            System.out.println(historyCallers);
+//            SootMethod callee = curStmt.getInvokeExpr().getMethod();
+////            System.out.println("caller: " + t.getMethod() + " -> callee: " + callee);
+//            historyCallers.add(t.getMethod());
+//            if (historyCallers.contains(callee)) {
+//                recursiveCallee = callee;
+//            }
+//        }
+//        for (Taint succ : t.getSuccessors()) {
+////            System.out.println("succ method: " + succ.getMethod() + " <<>> recur callee: " + recursiveCallee);
+//            if (succ.getMethod() != recursiveCallee) {
+//                if (curStmt instanceof InvokeStmt) {
+//                    dfs(succ, depth + 1, historyCallers, curStmt.getInvokeExpr().getMethod());
+//                } else if (curStmt instanceof ReturnStmt) {
+//                    if (callerMethod == succ.getMethod()) {
+//                        dfs(succ, depth + 1, historyCallers, null);
+//                    }
+//                } else {
+//                    dfs(succ, depth + 1, historyCallers, callerMethod);
+//                }
+//            }
+//        }
+//    }
 }
