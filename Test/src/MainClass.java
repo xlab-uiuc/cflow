@@ -26,6 +26,9 @@ public class MainClass {
         ContextSensitivityTest contextSensitivityTest = new ContextSensitivityTest();
         contextSensitivityTest.run();
 
+        ComplexContextSensitivityTest complexContextSensitivityTest = new ComplexContextSensitivityTest();
+        complexContextSensitivityTest.run();
+
         // Test taint wrapper for common external API calls
         TaintWrapperTest taintWrapperTest = new TaintWrapperTest();
         taintWrapperTest.run();
