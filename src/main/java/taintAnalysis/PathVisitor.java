@@ -1,7 +1,13 @@
 package taintAnalysis;
 
+import soot.SootMethod;
+import soot.jimple.InvokeStmt;
+import soot.jimple.ReturnStmt;
+import soot.jimple.Stmt;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class PathVisitor {
 
@@ -13,19 +19,38 @@ public class PathVisitor {
 
     public void visit(Taint t) {
         Map<Taint, Color> status = new HashMap<>();
-        dfs(t, 0, status);
+        dfs(t, 0, status, new Stack<SootMethod>());
     }
 
-    private void dfs(Taint t, int depth, Map<Taint, Color> status) {
+    private void dfs(Taint t, int depth, Map<Taint, Color> status, Stack<SootMethod> callerStack) {
         for (int i = 0; i < depth; i++) {
             System.out.print("-");
         }
         System.out.println(t);
 
         status.put(t, Color.GREY);
+        Stmt curStmt = t.getStmt();
         for (Taint successor : t.getSuccessors()) {
             if (status.get(successor) != Color.GREY) {
-                dfs(successor, depth + 1, status);
+                if (curStmt instanceof InvokeStmt) {
+                    SootMethod currMethod = t.getMethod();
+                    if (t.isMethodContextSwitched()) {
+                        callerStack.push(currMethod);
+                        dfs(successor, depth + 1, status, callerStack);
+                    }
+                } else if (curStmt instanceof ReturnStmt) {
+                    if (callerStack.peek() == successor.getMethod()) {
+                        callerStack.pop();
+                        dfs(successor, depth+1, status, callerStack);
+                    }
+                } else {
+                    // if assign stmt contains invoker expr, push currMethod to callerStack
+                    if (curStmt.containsInvokeExpr()) {
+                        SootMethod currMethod = t.getMethod();
+                        callerStack.push(currMethod);
+                    }
+                    dfs(successor, depth + 1, status, callerStack);
+                }
             }
         }
         status.put(t, Color.BLACK);
