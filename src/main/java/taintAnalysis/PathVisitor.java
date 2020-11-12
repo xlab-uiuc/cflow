@@ -23,12 +23,12 @@ public class PathVisitor {
         System.out.println("run1: " + Long.toString(cnt1));
         cnt = 0;
 
-        dfs(t, 0, status, new Stack<>(), false);
-        long cnt2 = cnt;
-//        System.out.println(t);
-        System.out.println("run2: " + Long.toString(cnt2));
-        if (cnt1 != cnt2)
-            System.out.println("##### non-deterministic");
+//        dfs(t, 0, status, new Stack<>(), false);
+//        long cnt2 = cnt;
+////        System.out.println(t);
+//        System.out.println("run2: " + Long.toString(cnt2));
+//        if (cnt1 != cnt2)
+//            System.out.println("##### non-deterministic");
 
     }
 
