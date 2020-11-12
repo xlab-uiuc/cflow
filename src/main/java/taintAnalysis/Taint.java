@@ -2,8 +2,7 @@ package taintAnalysis;
 
 import assertion.Assert;
 import soot.*;
-import soot.jimple.InstanceFieldRef;
-import soot.jimple.Stmt;
+import soot.jimple.*;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +26,7 @@ public class Taint {
     private final SootMethod method;
     private final Set<Taint> successors;
     private final TransferType transferType;
+    private boolean isSink = false;
 
     public static Taint getEmptyTaint() {
         return emptyTaint;
@@ -85,28 +85,59 @@ public class Taint {
         // Empty taint doesn't taint anything
         if (isEmpty()) return false;
 
-        // Match exact field if v is a ref to instance field
-        if (v instanceof InstanceFieldRef) {
+        if (v instanceof Immediate) {
+            return value.equivTo(v);
+        }
+        if (v instanceof Expr) {
+            return taints((Expr) v);
+        }
+        if (v instanceof Ref) {
+            return taints((Ref) v);
+        }
+
+        return false;
+    }
+
+    private boolean taints(Expr e) {
+        if (e instanceof BinopExpr) {
+            BinopExpr binopExpr = (BinopExpr) e;
+            Value op1 = binopExpr.getOp1();
+            Value op2 = binopExpr.getOp2();
+            return taints(op1) || taints(op2);
+        }
+        if (e instanceof UnopExpr) {
+            Value op = ((UnopExpr) e).getOp();
+            return taints(op);
+        }
+        if (e instanceof CastExpr) {
+            Value op = ((CastExpr) e).getOp();
+            return taints(op);
+        }
+        if (e instanceof InstanceOfExpr) {
+            Value op = ((InstanceOfExpr) e).getOp();
+            return taints(op);
+        }
+        return false;
+    }
+
+    private boolean taints(Ref r) {
+        if (r instanceof InstanceFieldRef) {
             if (base == null) return false;
             Assert.assertNotNull(field);
-            InstanceFieldRef fieldRef = (InstanceFieldRef) v;
+            InstanceFieldRef fieldRef = (InstanceFieldRef) r;
             return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
         }
-
-        // If curr taint is on an exact field and v is not a ref to instance field, return false
-        if (base != null) {
+        if (r instanceof ArrayRef) {
             return false;
         }
-
-        // Otherwise, compare the value
-        return value.equivTo(v);
+        return false;
     }
 
     /**
      * associatesWith is field-insensitive.
      */
     public boolean associatesWith(Value v) {
-        return taints(v) || (base != null && base.equivTo(v));
+        return (base != null && base.equivTo(v)) || taints(v);
     }
 
     private Taint(Value value, Stmt stmt, SootMethod method) {
@@ -189,16 +220,32 @@ public class Taint {
         return transferType;
     }
 
+    public boolean isSink() {
+        return isSink;
+    }
+
+    public void setSink(boolean sink) {
+        isSink = sink;
+    }
+
     @Override
     public String toString() {
         if (isEmpty()) return "Empty Taint";
 
+        String str;
         if (base == null) {
-            return value + " in " + stmt + " in method " + method + " " + transferType;
+            str = value + " in " + stmt + " in method " + method;
         } else {
             Assert.assertNotNull(field);
-            return base + "." + field + " in " + stmt + " in method " + method + " " + transferType;
+            str = base + "." + field + " in " + stmt + " in method " + method;
         }
+        if (transferType != TransferType.None) {
+            str += " " + transferType;
+        }
+        if (isSink) {
+            str += " [Sink]";
+        }
+        return str;
     }
 
     @Override

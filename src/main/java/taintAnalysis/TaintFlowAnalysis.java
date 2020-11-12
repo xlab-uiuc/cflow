@@ -121,13 +121,13 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             visitReturn(in, stmt);
         }
 
-        if (stmt instanceof IfStmt) {
-            visitIf(in, (IfStmt) stmt, out);
-        }
-
-        if (sourceSinkManager.isSink(stmt)) {
-            visitSink(in, stmt);
-        }
+//        if (stmt instanceof IfStmt) {
+//            visitIf(in, (IfStmt) stmt, out);
+//        }
+//
+//        if (sourceSinkManager.isSink(stmt)) {
+//            visitSink(in, stmt);
+//        }
     }
 
     private void visitAssign(Set<Taint> in, AssignStmt stmt, Set<Taint> out) {
@@ -154,17 +154,11 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 visitInvoke(in, stmt, invoke, out);
             }
         } else {
-            List<ValueBox> valueBoxes = new ArrayList<>();
-            valueBoxes.add(stmt.getRightOpBox());
-            valueBoxes.addAll(rightOp.getUseBoxes());
             for (Taint t : in) {
-                for (ValueBox box : valueBoxes) {
-                    Value value = box.getValue();
-                    if (t.taints(value)) {
-                        Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
-                        t.addSuccessor(newTaint);
-                        out.add(newTaint);
-                    }
+                if (t.taints(rightOp)) {
+                    Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
+                    t.addSuccessor(newTaint);
+                    out.add(newTaint);
                 }
             }
         }
@@ -352,38 +346,35 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     }
 
     private void visitIf(Set<Taint> in, IfStmt stmt, Set<Taint> out) {
+        Value condition = stmt.getCondition();
         for (Taint t : in) {
-            for (ValueBox box : stmt.getUseBoxes()) {
-                Value value = box.getValue();
-                if (t.taints(value)) {
-                    out.remove(t);
-                    Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
-                    t.addSuccessor(newTaint);
-                    out.add(newTaint);
-                }
+            if (t.taints(condition)) {
+                out.remove(t);
+                Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
+                t.addSuccessor(newTaint);
+                out.add(newTaint);
             }
         }
     }
 
     private void visitSink(Set<Taint> in, Stmt stmt) {
-        List<ValueBox> valueBoxes = new ArrayList<>();
-        if (stmt instanceof DefinitionStmt) {
-            DefinitionStmt definitionStmt = (DefinitionStmt) stmt;
-            valueBoxes.add(definitionStmt.getRightOpBox());
-            valueBoxes.addAll(definitionStmt.getRightOp().getUseBoxes());
-        } else {
-            valueBoxes.addAll(stmt.getUseBoxes());
-        }
-
-        for (Taint t : in) {
-            for (ValueBox box : valueBoxes) {
-                Value value = box.getValue();
-                if (t.taints(value)) {
-                    Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
-                    t.addSuccessor(newTaint);
-                }
-            }
-        }
+//        List<ValueBox> valueBoxes = new ArrayList<>();
+//        if (stmt instanceof DefinitionStmt) {
+//            DefinitionStmt definitionStmt = (DefinitionStmt) stmt;
+//            valueBoxes.add(definitionStmt.getRightOpBox());
+//            valueBoxes.addAll(definitionStmt.getRightOp().getUseBoxes());
+//        } else {
+//            valueBoxes.addAll(stmt.getUseBoxes());
+//        }
+//        for (Taint t : in) {
+//            for (ValueBox box : valueBoxes) {
+//                Value value = box.getValue();
+//                if (t.taints(value)) {
+//                    Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
+//                    t.addSuccessor(newTaint);
+//                }
+//            }
+//        }
     }
 
     @Override
