@@ -154,8 +154,11 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 visitInvoke(in, stmt, invoke, out);
             }
         } else {
+            List<ValueBox> valueBoxes = new ArrayList<>();
+            valueBoxes.add(stmt.getRightOpBox());
+            valueBoxes.addAll(rightOp.getUseBoxes());
             for (Taint t : in) {
-                for (ValueBox box : rightOp.getUseBoxes()) {
+                for (ValueBox box : valueBoxes) {
                     Value value = box.getValue();
                     if (t.taints(value)) {
                         Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
@@ -363,8 +366,17 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     }
 
     private void visitSink(Set<Taint> in, Stmt stmt) {
+        List<ValueBox> valueBoxes = new ArrayList<>();
+        if (stmt instanceof DefinitionStmt) {
+            DefinitionStmt definitionStmt = (DefinitionStmt) stmt;
+            valueBoxes.add(definitionStmt.getRightOpBox());
+            valueBoxes.addAll(definitionStmt.getRightOp().getUseBoxes());
+        } else {
+            valueBoxes.addAll(stmt.getUseBoxes());
+        }
+
         for (Taint t : in) {
-            for (ValueBox box : stmt.getUseBoxes()) {
+            for (ValueBox box : valueBoxes) {
                 Value value = box.getValue();
                 if (t.taints(value)) {
                     Taint newTaint = Taint.getTaintFor(t.getValue(), stmt, method, currTaintCache);
