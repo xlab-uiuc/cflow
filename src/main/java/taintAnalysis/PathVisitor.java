@@ -52,9 +52,12 @@ public class PathVisitor {
                     dfs(successor, depth + 1, status, callerStack, sorted);
                 } else if (curStmt instanceof PhantomRetStmt && !callerStack.isEmpty()) {
                     if (callerStack.peek() == successor.getStmt()) {
+                        Stmt callSite = callerStack.peek();
                         callerStack.pop();
                         isEndPoint = false;
                         dfs(successor, depth + 1, status, callerStack, sorted);
+                        callerStack.push(callSite);
+                        break;
                     }
                 } else {
                     isEndPoint = false;
