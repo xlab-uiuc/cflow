@@ -60,7 +60,9 @@ public class InterTaintAnalysis {
 
             for (SootMethod sm : methodList) {
                 Body b = sm.retrieveActiveBody();
-                for (Taint entryTaint : methodSummary.get(sm).keySet()) {
+                Set<Taint> entryTaints = new HashSet<>();
+                entryTaints.addAll(methodSummary.get(sm).keySet());
+                for (Taint entryTaint : entryTaints) {
                     TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, sourceSinkManager, entryTaint,
                             methodSummary, methodTaintCache, taintWrapper);
                     analysis.doAnalysis();
