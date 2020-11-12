@@ -194,10 +194,10 @@ public class Taint {
         if (isEmpty()) return "Empty Taint";
 
         if (base == null) {
-            return value + " in " + stmt + " in method " + method;
+            return value + " in " + stmt + " in method " + method + " " + transferType;
         } else {
             Assert.assertNotNull(field);
-            return base + "." + field + " in " + stmt + " in method " + method;
+            return base + "." + field + " in " + stmt + " in method " + method + " " + transferType;
         }
     }
 
