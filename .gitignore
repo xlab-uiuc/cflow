@@ -36,7 +36,7 @@ app/spark*/
 app/hbase*/
 
 # temp files
-tmp.txt
+tmp1.txt
 
 # vscode
 .vscode/
