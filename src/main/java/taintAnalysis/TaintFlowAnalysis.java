@@ -131,6 +131,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private void visitAssign(Set<Taint> in, AssignStmt stmt, Set<Taint> out) {
         Value leftOp = stmt.getLeftOp();
+        Value rightOp = stmt.getRightOp();
 
         // KILL
         for (Taint t : in) {
@@ -153,7 +154,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             }
         } else {
             for (Taint t : in) {
-                for (ValueBox box : stmt.getUseBoxes()) {
+                for (ValueBox box : rightOp.getUseBoxes()) {
                     Value value = box.getValue();
                     if (t.taints(value)) {
                         Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
