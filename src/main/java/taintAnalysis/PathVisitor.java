@@ -50,6 +50,7 @@ public class PathVisitor {
                     callerStack.push(t.getStmt());
                     isEndPoint = false;
                     dfs(successor, depth + 1, status, callerStack, sorted);
+                    callerStack.pop();
                 } else if (curStmt instanceof PhantomRetStmt && !callerStack.isEmpty()) {
                     if (callerStack.peek() == successor.getStmt()) {
                         Stmt callSite = callerStack.peek();
@@ -57,7 +58,6 @@ public class PathVisitor {
                         isEndPoint = false;
                         dfs(successor, depth + 1, status, callerStack, sorted);
                         callerStack.push(callSite);
-                        break;
                     }
                 } else {
                     isEndPoint = false;
