@@ -312,14 +312,14 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         for (Taint t : in) {
             // Check if t taints base object
             if (thiz != null && t.associatesWith(thiz)) {
-                Taint newTaint = Taint.getTaintFor(thiz, phantomRetStmt, method, currTaintCache);
+                Taint newTaint = Taint.getTaintFor(t.getValue(), phantomRetStmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 changed |= summary.get(0).add(newTaint);
             }
 
             // Check if t taints return value
             if (retVal != null && t.associatesWith(retVal)) {
-                Taint newTaint = Taint.getTaintFor(retVal, phantomRetStmt, method, currTaintCache);
+                Taint newTaint = Taint.getTaintFor(t.getValue(), phantomRetStmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 changed |= summary.get(1).add(newTaint);
             }
@@ -330,7 +330,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 // Check if the param is basic type (we should not taint them in that case)
                 String paramType = paramLocal.getType().toString();
                 if (!basicParamTypeSet.contains(paramType) && t.associatesWith(paramLocal)) {
-                    Taint newTaint = Taint.getTaintFor(paramLocal, phantomRetStmt, method, currTaintCache);
+                    Taint newTaint = Taint.getTaintFor(t.getValue(), phantomRetStmt, method, currTaintCache);
                     t.addSuccessor(newTaint);
                     changed |= summary.get(2 + i).add(newTaint);
                 }
