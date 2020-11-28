@@ -36,7 +36,17 @@ app/spark*/
 app/hbase*/
 
 # temp files
-tmp.txt
+tmp1.txt
 
-# acai
-acai/
+# vscode
+.vscode/
+
+# sootOutput
+sootOutput/
+
+# Test
+*.txt
+*.class
+*.jar
+.idea
+resource/

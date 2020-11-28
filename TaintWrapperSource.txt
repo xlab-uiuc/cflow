@@ -1,13 +1,3 @@
-# Packages to include in the analysis
-^android.
-^java.
-^org.apache.http.
-^org.joda.time.
-^org.apache.commons.
-^org.apache.curator.
-^com.google.common.
-^org.slf4j.Logger.
-
 <java.util.Stack: java.lang.Object push(java.lang.Object)>
 
 <java.util.Map: java.lang.Object put(java.lang.Object,java.lang.Object)>
