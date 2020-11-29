@@ -43,10 +43,17 @@ public class InterTaintAnalysis {
                 }
             }
         }
+        methodList.sort(Comparator.comparing(SootMethod::toString));
 
         logger.info("Num of methods: {}", methodList.size());
+
+        // Bootstrap
+        List<Body> bodyList = new ArrayList<>();
         for (SootMethod sm : methodList) {
             Body b = sm.retrieveActiveBody();
+            bodyList.add(b);
+        }
+        for (Body b : bodyList) {
             TaintFlowAnalysis analysis = new TaintFlowAnalysis(b, sourceSinkManager, Taint.getEmptyTaint(),
                     methodSummary, methodTaintCache, taintWrapper);
             analysis.doAnalysis();
@@ -71,7 +78,6 @@ public class InterTaintAnalysis {
             }
             iter++;
         }
-
     }
 
     public List<Taint> getSources() {
