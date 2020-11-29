@@ -69,14 +69,6 @@ public class Main {
             }
 
             /* getting required parameters */
-            /* getting option x */
-            String xmlPath = commandLine.getOptionValue('x');
-            File folder = new File(xmlPath);
-            File[] xmlFiles = folder.listFiles();
-            String[] fileNames = new String[xmlFiles.length];
-            for (int i = 0; i < xmlFiles.length; i++)
-                fileNames[i] = xmlFiles[i].getAbsolutePath();
-
             /* getting option a */
             String apps = commandLine.getOptionValue('a');
             String[] result = apps.split(",");
