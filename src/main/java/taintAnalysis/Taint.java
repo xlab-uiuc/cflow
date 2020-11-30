@@ -54,8 +54,31 @@ public class Taint {
     }
 
     /**
+     * Gets a globally unique taint object whose taint is intra-procedurally transferred from
+     * another taint object within the same method.
+     *
+     * @param t             the taint from which to transfer
+     * @param stmt          the statement context of the taint
+     * @param method        the method context of the taint
+     * @param taintCache    the taint cache of the method into which the taint is transferred,
+     *                      used to ensure global uniqueness
+     * @return The corresponding globally unique taint object after transfer
+     */
+    public static Taint getTransferredTaintFor(Taint t, Stmt stmt, SootMethod method,
+                                               Map<Taint, Taint> taintCache) {
+        Taint newTaint = new Taint(t.getValue(), t.getBase(), t.getField(),
+                stmt, method, TransferType.None);
+        if (taintCache.containsKey(newTaint)) {
+            newTaint = taintCache.get(newTaint);
+        } else {
+            taintCache.put(newTaint, newTaint);
+        }
+        return newTaint;
+    }
+
+    /**
      * Gets a globally unique taint object for a value in the callee/caller whose taint is
-     * transferred from a taint object in the caller/callee along call/return edges in the ICFG.
+     * inter-procedurally transferred from a taint object in the caller/callee along call/return edges.
      *
      * @param t             the taint from which to transfer
      * @param v             the value which the taint is on
@@ -69,7 +92,8 @@ public class Taint {
      */
     public static Taint getTransferredTaintFor(Taint t, Value v, Stmt stmt, SootMethod method,
                                                Map<Taint, Taint> taintCache, TransferType transferType) {
-        Taint newTaint = t.transferTaintTo(v, stmt, method, transferType);
+        Taint newTaint = new Taint(v, t.getBase() == null ? null : v, t.getField(),
+                stmt, method, transferType);
         if (taintCache.containsKey(newTaint)) {
             newTaint = taintCache.get(newTaint);
         } else {
@@ -161,26 +185,17 @@ public class Taint {
         }
     }
 
-    private Taint transferTaintTo(Value v, Stmt stmt, SootMethod method,
-                                  TransferType transferType) {
-        if (base != null) {
-            return new Taint(v, v, field, stmt, method, new HashSet<>(), transferType);
-        } else {
-            return new Taint(v, null, null, stmt, method, new HashSet<>(), transferType);
-        }
-    }
-
     /**
-     * Used solely by transferTaintTo.
+     * Constructor for getting a transferred taint.
      */
-    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method, Set<Taint> successors,
+    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method,
                   TransferType transferType) {
         this.value = value;
         this.base = base;
         this.field = field;
         this.stmt = stmt;
         this.method = method;
-        this.successors = successors;
+        this.successors = new HashSet<>();
         this.transferType = transferType;
     }
 
