@@ -17,7 +17,7 @@ public class InterAnalysisTransformer extends SceneTransformer {
     private final InterTaintAnalysis analysis;
 
     public InterAnalysisTransformer(ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
-        this.analysis = new InterTaintAnalysis(Scene.v(), sourceSinkManager, taintWrapper);
+        this.analysis = new InterTaintAnalysis(sourceSinkManager, taintWrapper);
     }
 
     public List<Taint> getSources() {

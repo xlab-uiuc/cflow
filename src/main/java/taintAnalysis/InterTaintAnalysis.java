@@ -12,15 +12,13 @@ public class InterTaintAnalysis {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Scene scene;
     private final ISourceSinkManager sourceSinkManager;
     private final ITaintWrapper taintWrapper;
     private final List<Taint> sources;
     private final Map<SootMethod, Map<Taint, List<Set<Taint>>>> methodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
 
-    public InterTaintAnalysis(Scene scene, ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
-        this.scene = scene;
+    public InterTaintAnalysis(ISourceSinkManager sourceSinkManager, ITaintWrapper taintWrapper) {
         this.sourceSinkManager = sourceSinkManager;
         this.taintWrapper = taintWrapper;
         this.sources = new ArrayList<>();
