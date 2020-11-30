@@ -58,22 +58,16 @@ public class Taint {
      * another taint object within the same method.
      *
      * @param t             the taint from which to transfer
+     * @param v             the value which the taint is on
      * @param stmt          the statement context of the taint
      * @param method        the method context of the taint
      * @param taintCache    the taint cache of the method into which the taint is transferred,
      *                      used to ensure global uniqueness
      * @return The corresponding globally unique taint object after transfer
      */
-    public static Taint getTransferredTaintFor(Taint t, Stmt stmt, SootMethod method,
+    public static Taint getTransferredTaintFor(Taint t, Value v, Stmt stmt, SootMethod method,
                                                Map<Taint, Taint> taintCache) {
-        Taint newTaint = new Taint(t.getValue(), t.getBase(), t.getField(),
-                stmt, method, TransferType.None);
-        if (taintCache.containsKey(newTaint)) {
-            newTaint = taintCache.get(newTaint);
-        } else {
-            taintCache.put(newTaint, newTaint);
-        }
-        return newTaint;
+        return getTransferredTaintFor(t, v, stmt, method, taintCache, TransferType.None);
     }
 
     /**
