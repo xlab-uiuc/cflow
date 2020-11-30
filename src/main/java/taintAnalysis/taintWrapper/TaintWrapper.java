@@ -130,7 +130,8 @@ public class TaintWrapper implements ITaintWrapper {
     }
 
     @Override
-    public void genTaintsForMethodInternal(Set<Taint> in, Stmt stmt, SootMethod caller, Set<Taint> out,
+    public void genTaintsForMethodInternal(Set<Taint> in, Stmt stmt, SootMethod caller,
+                                           Set<Taint> killSet, Set<Taint> genSet,
                                            Map<Taint, Taint> taintCache) {
         assertTrue(stmt.containsInvokeExpr());
         InvokeExpr invoke = stmt.getInvokeExpr();
@@ -164,7 +165,7 @@ public class TaintWrapper implements ITaintWrapper {
             // Process base object
             if (base != null && t.associatesWith(base)) {
                 if (wrapType == MethodWrapType.KillTaint) {
-                    out.remove(t);
+                    killSet.add(t);
                     continue;
                 }
                 baseTainted = true;
@@ -183,11 +184,11 @@ public class TaintWrapper implements ITaintWrapper {
                 if (base != null &&
                         (wrapType == MethodWrapType.TaintBoth || wrapType == MethodWrapType.TaintBase)) {
                     if (t.associatesWith(base)) {
-                        out.remove(t);
+                        killSet.add(t);
                     }
                     Taint newTaint = Taint.getTaintFor(base, stmt, caller, taintCache);
                     t.addSuccessor(newTaint);
-                    out.add(newTaint);
+                    genSet.add(newTaint);
                 }
 
                 // Taint return val (Note that if base is tainted, we also taint the ret val)
@@ -196,7 +197,7 @@ public class TaintWrapper implements ITaintWrapper {
                         wrapType == MethodWrapType.TaintReturn)) {
                     Taint newTaint = Taint.getTaintFor(retVal, stmt, caller, taintCache);
                     t.addSuccessor(newTaint);
-                    out.add(newTaint);
+                    genSet.add(newTaint);
                 }
             }
         }

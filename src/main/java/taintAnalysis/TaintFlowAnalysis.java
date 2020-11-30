@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
 import soot.jimple.*;
+import soot.jimple.toolkits.callgraph.CallGraph;
+import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 import taintAnalysis.sourceSinkManager.ISourceSinkManager;
@@ -17,6 +19,8 @@ import static assertion.Assert.assertNotNull;
 public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    
+    private static final CallGraph cg = Scene.v().hasCallGraph() ? Scene.v().getCallGraph() : null;
 
     private boolean changed = false;
     private final Body body;
@@ -162,27 +166,41 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     }
 
     private void visitInvoke(Set<Taint> in, Stmt stmt, InvokeExpr invoke, Set<Taint> out) {
-        SootMethod callee = invoke.getMethod();
-        assertNotNull(callee);
+        SootMethod calleeMethod = invoke.getMethod();
+        assertNotNull(calleeMethod);
 
         // Check if taint wrapper applies
-        if (taintWrapper != null && taintWrapper.supportsCallee(callee)) {
-            taintWrapper.genTaintsForMethodInternal(in, stmt, method, out, currTaintCache);
+        if (taintWrapper != null && taintWrapper.supportsCallee(calleeMethod)) {
+            Set<Taint> killSet = new HashSet<>();
+            Set<Taint> genSet = new HashSet<>();
+            taintWrapper.genTaintsForMethodInternal(in, stmt, method, killSet, genSet, currTaintCache);
+            for (Taint t : killSet) {
+                out.remove(t);
+            }
+            for (Taint t : genSet) {
+                out.add(t);
+            }
             return;
         }
 
-        if (!callee.hasActiveBody()) {
-            logger.debug("No active body for callee {} in {}", callee, method);
-            return;
+        // Get all possible callees for this call site
+        List<SootMethod> methods = new ArrayList<>();
+        if (cg == null) {
+            methods.add(calleeMethod);
+        } else {
+            for (Iterator<Edge> it = cg.edgesOutOf(stmt); it.hasNext(); ) {
+                Edge edge = it.next();
+                SootMethod sm = edge.tgt();
+                if (calleeMethod.getName().equals(sm.getName())) {
+                    methods.add(sm);
+                }
+            }
         }
-        Body calleeBody = callee.getActiveBody();
 
-        // Get the base object of this invocation in caller and the corresponding this object in callee (if exists)
+        // Get the base object of this invocation in caller (if applies)
         Value base = null;
-        Value calleeThisLocal = null;
         if (invoke instanceof InstanceInvokeExpr) {
             base = ((InstanceInvokeExpr) invoke).getBase();
-            calleeThisLocal = calleeBody.getThisLocal();
         }
 
         // Get the retVal of this invocation in caller (if applies)
@@ -191,71 +209,115 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             retVal = ((AssignStmt) stmt).getLeftOp();
         }
 
-        // Initialize methodSummary and methodTaintCache for callee (if not done yet)
-        methodSummary.putIfAbsent(callee, new HashMap<>());
-        Map<Taint, List<Set<Taint>>> calleeSummary = methodSummary.get(callee);
-        methodTaintCache.putIfAbsent(callee, new HashMap<>());
-        Map<Taint, Taint> calleeTaintCache = methodTaintCache.get(callee);
-
-        // Initialize the empty taint summary for callee (if not done yet)
-        // Summary list format: idx 0: (set of taints on) base, 1: retVal, 2+: parameters
-        if (!calleeSummary.containsKey(Taint.getEmptyTaint())) {
-            changed = true;
-            List<Set<Taint>> emptyTaintSummary = new ArrayList<>();
-            for (int i = 0; i < callee.getParameterCount() + 2; i++) {
-                emptyTaintSummary.add(new HashSet<>());
+        // Compute KILL and GEN
+        List<Set<Taint>> killSets = new ArrayList<>();
+        List<Set<Taint>> genSets = new ArrayList<>();
+        for (SootMethod callee : methods) {
+            if (!callee.hasActiveBody()) {
+                logger.debug("No active body for callee {} in {}", callee, method);
+                continue;
             }
-            calleeSummary.put(Taint.getEmptyTaint(), emptyTaintSummary);
-        }
+            Body calleeBody = callee.getActiveBody();
 
-        // Initialize the summary for this invocation by elements copied from the empty taint summary
-        List<Set<Taint>> summary = new ArrayList<>();
-        for (Set<Taint> taints : calleeSummary.get(Taint.getEmptyTaint())) {
-            Set<Taint> newTaints = new HashSet<>();
-            newTaints.addAll(taints);
-            summary.add(newTaints);
-        }
+            Set<Taint> killSet = new HashSet<>();
+            Set<Taint> genSet = new HashSet<>();
+            killSets.add(killSet);
+            genSets.add(genSet);
 
-        // Gather summary info for this invocation
-        for (Taint t : in) {
+            // Get this object in callee (if exists)
+            Value calleeThisLocal = null;
+            if (invoke instanceof InstanceInvokeExpr) {
+                calleeThisLocal = calleeBody.getThisLocal();
+            }
+
+            // Initialize methodSummary and methodTaintCache for callee (if not done yet)
+            methodSummary.putIfAbsent(callee, new HashMap<>());
+            Map<Taint, List<Set<Taint>>> calleeSummary = methodSummary.get(callee);
+            methodTaintCache.putIfAbsent(callee, new HashMap<>());
+            Map<Taint, Taint> calleeTaintCache = methodTaintCache.get(callee);
+
+            // Initialize the empty taint summary for callee (if not done yet)
+            // Summary list format: idx 0: (set of taints on) base, 1: retVal, 2+: parameters
+            if (!calleeSummary.containsKey(Taint.getEmptyTaint())) {
+                changed = true;
+                List<Set<Taint>> emptyTaintSummary = new ArrayList<>();
+                for (int i = 0; i < callee.getParameterCount() + 2; i++) {
+                    emptyTaintSummary.add(new HashSet<>());
+                }
+                calleeSummary.put(Taint.getEmptyTaint(), emptyTaintSummary);
+            }
+
+            // Initialize the summary for this invocation by elements copied from the empty taint summary
+            List<Set<Taint>> summary = new ArrayList<>();
+            for (Set<Taint> taints : calleeSummary.get(Taint.getEmptyTaint())) {
+                Set<Taint> newTaints = new HashSet<>();
+                newTaints.addAll(taints);
+                summary.add(newTaints);
+            }
+
+            // Compute KILL and gather summary info for this invocation
+            for (Taint t : in) {
+                // Process base object
+                if (base != null && t.associatesWith(base)) {
+                    killSet.add(t);
+                    genCalleeEntryTaints(t, calleeThisLocal, stmt, calleeSummary, calleeTaintCache, summary, callee);
+                }
+
+                // Process parameters
+                for (int i = 0; i < invoke.getArgCount(); i++) {
+                    Value arg = invoke.getArg(i);
+                    if (t.associatesWith(arg)) {
+                        // Check if the param is basic type (we should pass on the taint in that case)
+                        if (!(arg.getType() instanceof PrimType)) {
+                            killSet.add(t);
+                        }
+                        Local calleeParam = calleeBody.getParameterLocal(i);
+                        genCalleeEntryTaints(t, calleeParam, stmt, calleeSummary, calleeTaintCache, summary, callee);
+                    }
+                }
+            }
+
+            // Compute GEN from the gathered summary info
             // Process base object
-            if (base != null && t.associatesWith(base)) {
-                out.remove(t);
-                genCalleeEntryTaints(t, calleeThisLocal, stmt, calleeSummary, calleeTaintCache, summary, callee);
+            if (base != null) {
+                Set<Taint> baseTaints = summary.get(0);
+                genSet.addAll(getTaintsFromInvokeSummary(baseTaints, base, stmt));
+            }
+
+            // Process return value
+            if (retVal != null) {
+                Set<Taint> retTaints = summary.get(1);
+                genSet.addAll(getTaintsFromInvokeSummary(retTaints, retVal, stmt));
             }
 
             // Process parameters
             for (int i = 0; i < invoke.getArgCount(); i++) {
                 Value arg = invoke.getArg(i);
-                if (t.associatesWith(arg)) {
-                    // Check if the param is basic type (we should pass on the taint in that case)
-                    if (!(arg.getType() instanceof PrimType)) {
-                        out.remove(t);
-                    }
-
-                    Local calleeParam = calleeBody.getParameterLocal(i);
-                    genCalleeEntryTaints(t, calleeParam, stmt, calleeSummary, calleeTaintCache, summary, callee);
-                }
+                Set<Taint> argTaints = summary.get(2 + i);
+                genSet.addAll(getTaintsFromInvokeSummary(argTaints, arg, stmt));
             }
         }
 
-        // Process base object
-        if (base != null) {
-            Set<Taint> baseTaints = summary.get(0);
-            genTaintsFromInvokeSummary(baseTaints, base, stmt, out);
+        // KILL the INTERSECTION of all kill sets
+        Set<Taint> killSet = new HashSet<>();
+        for (int i = 0; i < killSets.size(); i++) {
+            if (i == 0) {
+                killSet.addAll(killSets.get(0));
+            } else {
+                killSet.retainAll(killSets.get(i));
+            }
+        }
+        for (Taint t : killSet) {
+            out.remove(t);
         }
 
-        // Process return value
-        if (retVal != null) {
-            Set<Taint> retTaints = summary.get(1);
-            genTaintsFromInvokeSummary(retTaints, retVal, stmt, out);
+        // GEN the UNION of all gen sets
+        Set<Taint> genSet = new HashSet<>();
+        for (Set<Taint> s : genSets) {
+            genSet.addAll(s);
         }
-
-        // Process parameters
-        for (int i = 0; i < invoke.getArgCount(); i++) {
-            Value arg = invoke.getArg(i);
-            Set<Taint> argTaints = summary.get(2 + i);
-            genTaintsFromInvokeSummary(argTaints, arg, stmt, out);
+        for (Taint t : genSet) {
+            out.add(t);
         }
     }
 
@@ -286,13 +348,15 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
     }
 
-    private void genTaintsFromInvokeSummary(Set<Taint> taints, Value callerVal, Stmt stmt, Set<Taint> out) {
+    private Set<Taint> getTaintsFromInvokeSummary(Set<Taint> taints, Value callerVal, Stmt stmt) {
+        Set<Taint> out = new HashSet<>();
         for (Taint t : taints) {
             Taint callerTaint = Taint.getTransferredTaintFor(
                     t, callerVal, stmt, method, currTaintCache, Taint.TransferType.Return);
             t.addSuccessor(callerTaint);
             out.add(callerTaint);
         }
+        return out;
     }
 
     private void visitReturn(Set<Taint> in, Stmt stmt) {

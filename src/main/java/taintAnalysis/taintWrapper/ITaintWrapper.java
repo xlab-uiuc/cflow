@@ -14,14 +14,16 @@ public interface ITaintWrapper {
      * Checks an invocation statement for black-box taint propagation. This allows
      * the wrapper to artificially propagate taints over method invocations without
      * requiring the analysis to look inside the method.
-     * @param in     The in-set of taints before the invocation statement
-     * @param stmt   The invocation statement which to check for black-box taint propagation
-     * @param caller The caller method of the invocation statement
-     * @param out    The out-set of taints after the invocation statement
-     * @param taintCache The taint cache of the caller method,
+     * @param in            The in-set of taints before the invocation statement
+     * @param stmt          The invocation statement which to check for black-box taint propagation
+     * @param caller        The caller method of the invocation statement
+     * @param killSet       The kill sets of the invocation statement computed with the provided in-set
+     * @param genSet        The gen sets of the invocation statement computed with the provided in-set
+     * @param taintCache    The taint cache of the caller method,
      *                       used to ensure global uniqueness of generated taint objects
      */
-    void genTaintsForMethodInternal(Set<Taint> in, Stmt stmt, SootMethod caller, Set<Taint> out,
+    void genTaintsForMethodInternal(Set<Taint> in, Stmt stmt, SootMethod caller,
+                                    Set<Taint> killSet, Set<Taint> genSet,
                                     Map<Taint, Taint> taintCache);
 
     /**
