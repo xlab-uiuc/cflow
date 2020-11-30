@@ -146,14 +146,17 @@ public class Taint {
 
     private boolean taints(Ref r) {
         if (r instanceof InstanceFieldRef) {
-            if (base == null) return false;
-            Assert.assertNotNull(field);
             InstanceFieldRef fieldRef = (InstanceFieldRef) r;
+            if (base == null) return value.equivTo(fieldRef.getBase());
+            if (field == null) return false;
             return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
         }
         if (r instanceof ArrayRef) {
-            return false;
+            ArrayRef arrayRef = (ArrayRef) r;
+            if (base == null) return value.equivTo(arrayRef.getBase());
+            return base.equivTo(arrayRef.getBase());
         }
+        // static field ref not supported
         return false;
     }
 
