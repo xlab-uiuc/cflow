@@ -10,6 +10,7 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
 import taintAnalysis.sourceSinkManager.ISourceSinkManager;
 import taintAnalysis.taintWrapper.ITaintWrapper;
+import taintAnalysis.utility.PhantomIdentityStmt;
 import taintAnalysis.utility.PhantomRetStmt;
 
 import java.util.*;
@@ -321,14 +322,20 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
     }
 
-    private void genCalleeEntryTaints(Taint callerTaint, Value calleeVal, Stmt stmt,
+    private void genCalleeEntryTaints(Taint t, Value calleeVal, Stmt stmt,
                                       Map<Taint, List<Set<Taint>>> calleeSummary,
                                       Map<Taint, Taint> calleeTaintCache,
                                       List<Set<Taint>> summary,
                                       SootMethod callee) {
+         // Generate caller taint at call site
+         Taint callerTaint = Taint.getTransferredTaintFor(
+                 t, t.getPlainValue(), stmt, method, currTaintCache, Taint.TransferType.Call);
+         t.addSuccessor(callerTaint);
+
         // Send caller taint to callee
+        PhantomIdentityStmt phantomIdentityStmt = PhantomIdentityStmt.getInstance(callee);
         Taint calleeTaint = Taint.getTransferredTaintFor(
-                callerTaint, calleeVal, stmt, method, calleeTaintCache, Taint.TransferType.Call);
+                callerTaint, calleeVal, phantomIdentityStmt, callee, calleeTaintCache);
         callerTaint.addSuccessor(calleeTaint);
 
         // Receive callee taint summary for the sent caller taint
