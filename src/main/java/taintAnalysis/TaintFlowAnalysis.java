@@ -131,7 +131,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
         // KILL
         for (Taint t : in) {
-            if (t.associatesWith(leftOp)) {
+            if (t.taints(leftOp)) {
                 out.remove(t);
             }
         }
@@ -258,7 +258,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             // Compute KILL and gather summary info for this invocation
             for (Taint t : in) {
                 // Process base object
-                if (base != null && t.associatesWith(base)) {
+                if (base != null && t.taints(base)) {
                     killSet.add(t);
                     genCalleeEntryTaints(t, calleeThisLocal, stmt, calleeSummary, calleeTaintCache, summary, callee);
                 }
@@ -266,7 +266,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
                 // Process parameters
                 for (int i = 0; i < invoke.getArgCount(); i++) {
                     Value arg = invoke.getArg(i);
-                    if (t.associatesWith(arg)) {
+                    if (t.taints(arg)) {
                         // Check if the param is basic type (we should pass on the taint in that case)
                         if (!(arg.getType() instanceof PrimType)) {
                             killSet.add(t);
@@ -350,6 +350,9 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
 
     private Set<Taint> getTaintsFromInvokeSummary(Set<Taint> taints, Value callerVal, Stmt stmt) {
         Set<Taint> out = new HashSet<>();
+        if (callerVal instanceof NullConstant) {
+            return out;
+        }
         for (Taint t : taints) {
             Taint callerTaint = Taint.getTransferredTaintFor(
                     t, callerVal, stmt, method, currTaintCache, Taint.TransferType.Return);
@@ -378,17 +381,17 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         List<Set<Taint>> summary = currMethodSummary.get(entryTaint);
         for (Taint t : in) {
             // Check if t taints base object
-            if (thiz != null && t.associatesWith(thiz)) {
+            if (thiz != null && t.taints(thiz)) {
                 Taint newTaint = Taint.getTransferredTaintFor(
-                        t, t.getValue(), phantomRetStmt, method, currTaintCache);
+                        t, t.getPlainValue(), phantomRetStmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 changed |= summary.get(0).add(newTaint);
             }
 
             // Check if t taints return value
-            if (retVal != null && t.associatesWith(retVal)) {
+            if (retVal != null && t.taints(retVal)) {
                 Taint newTaint = Taint.getTransferredTaintFor(
-                        t, t.getValue(), phantomRetStmt, method, currTaintCache);
+                        t, t.getPlainValue(), phantomRetStmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 changed |= summary.get(1).add(newTaint);
             }
@@ -397,9 +400,9 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (int i = 0; i < paramLocals.size(); i++) {
                 Local paramLocal = paramLocals.get(i);
                 // Check if the param is basic type (we should not taint them in that case)
-                if (!(paramLocal.getType() instanceof PrimType) && t.associatesWith(paramLocal)) {
+                if (!(paramLocal.getType() instanceof PrimType) && t.taints(paramLocal)) {
                     Taint newTaint = Taint.getTransferredTaintFor(
-                            t, t.getValue(), phantomRetStmt, method, currTaintCache);
+                            t, t.getPlainValue(), phantomRetStmt, method, currTaintCache);
                     t.addSuccessor(newTaint);
                     changed |= summary.get(2 + i).add(newTaint);
                 }
@@ -413,7 +416,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             if (t.taints(condition)) {
                 out.remove(t);
                 Taint newTaint = Taint.getTransferredTaintFor(
-                        t, t.getValue(), stmt, method, currTaintCache);
+                        t, t.getPlainValue(), stmt, method, currTaintCache);
                 t.addSuccessor(newTaint);
                 out.add(newTaint);
             }

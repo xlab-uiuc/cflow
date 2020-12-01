@@ -163,7 +163,7 @@ public class TaintWrapper implements ITaintWrapper {
             boolean paramTainted = false;
 
             // Process base object
-            if (base != null && t.associatesWith(base)) {
+            if (base != null && t.taints(base)) {
                 if (wrapType == MethodWrapType.KillTaint) {
                     killSet.add(t);
                     continue;
@@ -174,7 +174,7 @@ public class TaintWrapper implements ITaintWrapper {
             // Process parameters
             for (int i = 0; i < invoke.getArgCount(); i++) {
                 Value arg = invoke.getArg(i);
-                if (t.associatesWith(arg)) {
+                if (t.taints(arg)) {
                     paramTainted = true;
                 }
             }
@@ -183,7 +183,7 @@ public class TaintWrapper implements ITaintWrapper {
                 // Taint base
                 if (base != null &&
                         (wrapType == MethodWrapType.TaintBoth || wrapType == MethodWrapType.TaintBase)) {
-                    if (t.associatesWith(base)) {
+                    if (t.taints(base)) {
                         killSet.add(t);
                     }
                     Taint newTaint = Taint.getTaintFor(base, stmt, caller, taintCache);

@@ -1,6 +1,5 @@
 package taintAnalysis;
 
-import assertion.Assert;
 import soot.*;
 import soot.jimple.*;
 
@@ -19,8 +18,7 @@ public class Taint {
 
     private static final Taint emptyTaint = new Taint(null, null, null);
 
-    private final Value value;
-    private final Value base;
+    private final Value plainValue;
     private final SootField field;
     private final Stmt stmt;
     private final SootMethod method;
@@ -43,7 +41,7 @@ public class Taint {
      * @return The corresponding globally unique taint object
      */
     public static Taint getTaintFor(Value v, Stmt stmt, SootMethod method,
-                              Map<Taint, Taint> taintCache) {
+                                    Map<Taint, Taint> taintCache) {
         Taint newTaint = new Taint(v, stmt, method);
         if (taintCache.containsKey(newTaint)) {
             newTaint = taintCache.get(newTaint);
@@ -54,8 +52,8 @@ public class Taint {
     }
 
     /**
-     * Gets a globally unique taint object whose taint is intra-procedurally transferred from
-     * another taint object within the same method.
+     * Gets a globally unique taint object whose taint is transferred from another taint object
+     * with method context transfer type None.
      *
      * @param t             the taint from which to transfer
      * @param v             the value which the taint is on
@@ -71,8 +69,8 @@ public class Taint {
     }
 
     /**
-     * Gets a globally unique taint object for a value in the callee/caller whose taint is
-     * inter-procedurally transferred from a taint object in the caller/callee along call/return edges.
+     * Gets a globally unique taint object whose taint is transferred from another taint object,
+     * the method context transfer type is to indicate taint transfer along call/return edges.
      *
      * @param t             the taint from which to transfer
      * @param v             the value which the taint is on
@@ -80,14 +78,12 @@ public class Taint {
      * @param method        the method context of the taint
      * @param taintCache    the taint cache of the method into which the taint is transferred,
      *                      used to ensure global uniqueness
-     * @param transferType  the type of method context transfer, either TransferType.Call or
-     *                      TransferType.Return
+     * @param transferType  the type of method context transfer
      * @return The corresponding globally unique taint object after transfer
      */
     public static Taint getTransferredTaintFor(Taint t, Value v, Stmt stmt, SootMethod method,
                                                Map<Taint, Taint> taintCache, TransferType transferType) {
-        Taint newTaint = new Taint(v, t.getBase() == null ? null : v, t.getField(),
-                stmt, method, transferType);
+        Taint newTaint = new Taint(t, v, stmt, method, transferType);
         if (taintCache.containsKey(newTaint)) {
             newTaint = taintCache.get(newTaint);
         } else {
@@ -96,23 +92,19 @@ public class Taint {
         return newTaint;
     }
 
-    /**
-     * taints is field-sensitive.
-     */
     public boolean taints(Value v) {
         // Empty taint doesn't taint anything
         if (isEmpty()) return false;
 
-        if (v instanceof Immediate) {
-            return value.equivTo(v);
-        }
+        // Taint on V must taint V, taint on B.* also taints B
+        if (plainValue.equivTo(v)) return true;
+
         if (v instanceof Expr) {
             return taints((Expr) v);
         }
         if (v instanceof Ref) {
             return taints((Ref) v);
         }
-
         return false;
     }
 
@@ -141,79 +133,63 @@ public class Taint {
     private boolean taints(Ref r) {
         if (r instanceof InstanceFieldRef) {
             InstanceFieldRef fieldRef = (InstanceFieldRef) r;
-            if (base == null) return value.equivTo(fieldRef.getBase());
             if (field == null) return false;
-            return base.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
+            return plainValue.equivTo(fieldRef.getBase()) && field.equals(fieldRef.getField());
         }
         if (r instanceof ArrayRef) {
             ArrayRef arrayRef = (ArrayRef) r;
-            if (base == null) return value.equivTo(arrayRef.getBase());
-            return base.equivTo(arrayRef.getBase());
+            return plainValue.equivTo(arrayRef.getBase());
         }
         // static field ref not supported
         return false;
     }
 
-    /**
-     * associatesWith is field-insensitive.
-     */
-    public boolean associatesWith(Value v) {
-        return (base != null && base.equivTo(v)) || taints(v);
-    }
-
     private Taint(Value value, Stmt stmt, SootMethod method) {
-        this(value, stmt, method, new HashSet<>());
+        this(null, value, stmt, method, TransferType.None);
     }
 
-    private Taint(Value value, Stmt stmt, SootMethod method, Set<Taint> successors) {
-        this.value = value;
-        this.stmt = stmt;
-        this.method = method;
-        this.successors = successors;
-        this.transferType = TransferType.None;
-
-        if (value instanceof InstanceFieldRef) {
-            InstanceFieldRef fieldRef = (InstanceFieldRef) value;
-            this.base = fieldRef.getBase();
-            this.field = fieldRef.getField();
-        } else {
-            this.base = null;
-            this.field = null;
-        }
-    }
-
-    /**
-     * Constructor for getting a transferred taint.
-     */
-    private Taint(Value value, Value base, SootField field, Stmt stmt, SootMethod method,
-                  TransferType transferType) {
-        this.value = value;
-        this.base = base;
-        this.field = field;
+    private Taint(Taint transferFrom, Value value, Stmt stmt, SootMethod method, TransferType transferType) {
         this.stmt = stmt;
         this.method = method;
         this.successors = new HashSet<>();
         this.transferType = transferType;
+
+        if (value instanceof Ref) {
+            // if value is of ref type, ignore the taint from which to transfer
+            if (value instanceof InstanceFieldRef) {
+                InstanceFieldRef fieldRef = (InstanceFieldRef) value;
+                this.plainValue = fieldRef.getBase();
+                this.field = fieldRef.getField();
+            } else {
+                // array ref and static field ref is not currently supported,
+                // just taint the entire value
+                this.plainValue = value;
+                this.field = null;
+            }
+        } else if (transferFrom != null) {
+            // Transfer taint from t
+            this.plainValue = value;
+            this.field = transferFrom.getField();
+        } else {
+            this.plainValue = value;
+            this.field = null;
+        }
     }
 
     public boolean isEmpty() {
-        return value == null;
+        return plainValue == null;
     }
 
-    public Value getValue() {
-        return value;
-    }
-
-    public Stmt getStmt() {
-        return stmt;
-    }
-
-    public Value getBase() {
-        return base;
+    public Value getPlainValue() {
+        return plainValue;
     }
 
     public SootField getField() {
         return field;
+    }
+
+    public Stmt getStmt() {
+        return stmt;
     }
 
     public SootMethod getMethod() {
@@ -244,13 +220,8 @@ public class Taint {
     public String toString() {
         if (isEmpty()) return "Empty Taint";
 
-        String str;
-        if (base == null) {
-            str = value + " in " + stmt + " in method " + method;
-        } else {
-            Assert.assertNotNull(field);
-            str = base + "." + field + " in " + stmt + " in method " + method;
-        }
+        String str = plainValue + (field != null ? "." + field : "") +
+                " in " + stmt + " in method " + method;
         if (transferType != TransferType.None) {
             str += " " + transferType;
         }
@@ -265,8 +236,7 @@ public class Taint {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Taint taint = (Taint) o;
-        return Objects.equals(value, taint.value) &&
-                Objects.equals(base, taint.base) &&
+        return Objects.equals(plainValue, taint.plainValue) &&
                 Objects.equals(field, taint.field) &&
                 Objects.equals(stmt, taint.stmt) &&
                 Objects.equals(method, taint.method) &&
@@ -275,7 +245,7 @@ public class Taint {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, base, field, stmt, method, transferType);
+        return Objects.hash(plainValue, field, stmt, method, transferType);
     }
 
 }
