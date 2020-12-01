@@ -56,26 +56,48 @@ public class TaintAnalysisDriver {
         return transformer;
     }
 
-    public InterAnalysisTransformer runInterTaintAnalysis(List<String> srcPaths, List<String> classPaths) {
+    public InterAnalysisTransformer runInterTaintAnalysis(List<String> srcPaths, List<String> classPaths, boolean use_spark) {
         G.reset();
 
         String classPath = String.join(":", classPaths);
-        String[] initArgs = {
-                // General Options
-                "-w",
+        String[] initArgs;
+        if (use_spark) {
+            initArgs = new String[]{
+                    // General Options
+                    "-w",
 
-                // Input Options
-                "-cp", classPath,
-                "-pp",
-                "-allow-phantom-refs",
-                "-no-bodies-for-excluded",
+                    // Input Options
+                    "-cp", classPath,
+                    "-pp",
+                    "-allow-phantom-refs",
+                    "-no-bodies-for-excluded",
 
-                // Phase Options
-                "-p", "cg", "off",
+                    // Output Options
+                    "-f", "J",
 
-                // Output Options
-                "-f", "J",
-        };
+                    // Phase Options
+                    "-p", "cg", "all-reachable",
+                    "-p", "cg.spark", "enabled",
+                    "-p", "cg.spark", "apponly"
+            };
+        } else {
+            initArgs = new String[]{
+                    // General Options
+                    "-w",
+
+                    // Input Options
+                    "-cp", classPath,
+                    "-pp",
+                    "-allow-phantom-refs",
+                    "-no-bodies-for-excluded",
+
+                    // Output Options
+                    "-f", "J",
+
+                    // Phase Options
+                    "-p", "cg", "off"
+            };
+        }
 
         String[] sootArgs = new String[initArgs.length + 2 * srcPaths.size()];
         for (int i = 0; i < initArgs.length; i++) {

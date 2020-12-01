@@ -1,7 +1,5 @@
 import configInterface.ConfigInterface;
 import org.apache.commons.cli.*;
-import soot.SootMethod;
-import taintAnalysis.Taint;
 import taintAnalysis.TaintAnalysisDriver;
 import taintAnalysis.sourceSinkManager.ISourceSinkManager;
 import taintAnalysis.sourceSinkManager.SourceSinkManager;
@@ -17,53 +15,45 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-
-        CommandLineParser parser = new DefaultParser();
-        Options options = new Options();
-        Option optionA = Option.builder("o")
-                .required(false)
-                .desc("This parameter specifies the exported file path. If not specified, output will be directed to stdout.")
-                .longOpt("output")
-                .hasArg()
-                .build();
-
-        Option optionB = Option.builder("x")
-                .required(true)
-                .desc("Configuration parameter directory path.")
-                .longOpt("xml")
-                .hasArg()
-                .build();
-
-        Option optionC = Option.builder("a")
+        Option optionApp = Option.builder("a")
                 .required(true)
                 .desc("Support applications are: test, hdfs, mapreduce, yarn, hadoop_common, hadoop_tools, hbase, alluxio, zookeeper, spark")
                 .longOpt("app")
                 .hasArg()
                 .build();
 
-        Option optionD = new Option("intra", "Run intra-procedural analysis (testing only)");
+        Option optionOutput = Option.builder("o")
+                .required(false)
+                .desc("This parameter specifies the exported file path. If not specified, output will be directed to stdout.")
+                .longOpt("output")
+                .hasArg()
+                .build();
 
-        options.addOption(optionA);
-        options.addOption(optionB);
-        options.addOption(optionC);
-        options.addOption(optionD);
+        Option optionSpark = Option.builder(null)
+                .required(false)
+                .desc("Use Soot's SPARK for call graph (more precise but expensive)")
+                .longOpt("spark")
+                .hasArg(false)
+                .build();
 
+        Option optionIntra = Option.builder(null)
+                .required(false)
+                .desc("Run intra-procedural analysis (testing only)")
+                .longOpt("intra")
+                .hasArg(false)
+                .build();
+
+        Options options = new Options();
+        options.addOption(optionApp);
+        options.addOption(optionOutput);
+        options.addOption(optionSpark);
+        options.addOption(optionIntra);
+
+        CommandLineParser parser = new DefaultParser();
         try {
             CommandLine commandLine = parser.parse(options, args);
-            boolean intra = false;
-
-            /* getting optional parameters */
-            if (commandLine.hasOption('o')) {
-                /* getting option o */
-                String filePath = commandLine.getOptionValue('o');
-                PrintStream fileOut = new PrintStream(new FileOutputStream(filePath, true));
-                System.setOut(fileOut);
-            }
-
-            if (commandLine.hasOption("intra")) {
-                /* getting option intra */
-                intra = true;
-            }
+            boolean use_spark = false;
+            boolean run_intra = false;
 
             /* getting required parameters */
             /* getting option a */
@@ -78,14 +68,30 @@ public class Main {
                 }
             }
 
-            run(considered, intra);
+            /* getting optional parameters */
+            if (commandLine.hasOption('o')) {
+                /* getting option o */
+                String filePath = commandLine.getOptionValue('o');
+                PrintStream fileOut = new PrintStream(new FileOutputStream(filePath, true));
+                System.setOut(fileOut);
+            }
+            if (commandLine.hasOption("spark")) {
+                /* getting option spark */
+                use_spark = true;
+            }
+            if (commandLine.hasOption("intra")) {
+                /* getting option intra */
+                run_intra = true;
+            }
+
+            run(considered, use_spark, run_intra);
         } catch (ParseException ex) {
             System.out.println(ex.getMessage());
             new HelpFormatter().printHelp("ccc", options);
         }
     }
 
-    private static void run(String[][] considered, boolean intra) throws IOException {
+    private static void run(String[][] considered, boolean use_spark, boolean run_intra) throws IOException {
         List<String> srcPaths = new LinkedList<>();
         List<String> classPaths = new LinkedList<>();
         ConfigInterface configInterface = null;
@@ -100,10 +106,10 @@ public class Main {
         ISourceSinkManager sourceSinkManager = new SourceSinkManager(configInterface);
         ITaintWrapper taintWrapper = TaintWrapper.getDefault();
         TaintAnalysisDriver driver = new TaintAnalysisDriver(sourceSinkManager, taintWrapper);
-        if (intra) {
+        if (run_intra) {
             driver.runIntraTaintAnalysis(srcPaths, classPaths);
         } else {
-            driver.runInterTaintAnalysis(srcPaths, classPaths);
+            driver.runInterTaintAnalysis(srcPaths, classPaths, use_spark);
         }
     }
 
