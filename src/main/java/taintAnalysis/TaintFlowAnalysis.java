@@ -153,7 +153,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             for (Taint t : in) {
                 if (t.taints(rightOp)) {
                     Taint newTaint;
-                    if (leftOp.getType() instanceof PrimType) {
+                    if (leftOp.getType() instanceof PrimType || rightOp instanceof InstanceFieldRef) {
                         newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
                     } else {
                         newTaint = Taint.getTransferredTaintFor(
