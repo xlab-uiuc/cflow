@@ -2,7 +2,6 @@ package taintAnalysis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootMethod;
 import taintAnalysis.sourceSinkManager.ISourceSinkManager;

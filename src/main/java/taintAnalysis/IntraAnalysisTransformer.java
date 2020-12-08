@@ -47,24 +47,9 @@ public class IntraAnalysisTransformer extends BodyTransformer {
                         methodSummary, methodTaintCache, taintWrapper);
         analysis.doAnalysis();
 
-        List<Taint> lst = analysis.getSources();
+        List<Taint> lst = new ArrayList<>();
+        lst.addAll(analysis.getSources());
         sourceLists.add(lst);
-
-        for (Taint source : lst) {
-            System.out.println("source");
-            PathVisitor pathVisitor = new PathVisitor();
-            pathVisitor.visit(source);
-        }
     }
-
-//    private void dfs(Taint t, int depth) {
-//        for (int i = 0; i < depth; i++) {
-//            System.out.print("-");
-//        }
-//        System.out.println(t);
-//        for (Taint succ : t.getSuccessors()) {
-//            dfs(succ, depth + 1);
-//        }
-//    }
 
 }

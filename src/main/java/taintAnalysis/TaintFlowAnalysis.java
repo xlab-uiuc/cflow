@@ -33,8 +33,9 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
     private final Map<Taint, List<Set<Taint>>> currMethodSummary;
     private final Map<SootMethod, Map<Taint, Taint>> methodTaintCache;
     private final Map<Taint, Taint> currTaintCache;
-    private final List<Taint> sources;
     private final PhantomRetStmt phantomRetStmt;
+    private final Set<Taint> sources;
+    private final Set<Taint> sinks;
 
     public TaintFlowAnalysis(Body body, ISourceSinkManager sourceSinkManager) {
         this(body, sourceSinkManager, Taint.getEmptyTaint(), new HashMap<>(), new HashMap<>(), null);
@@ -53,7 +54,8 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         this.entryTaint = entryTaint;
         this.methodSummary = methodSummary;
         this.methodTaintCache = methodTaintCache;
-        this.sources = new ArrayList<>();
+        this.sources = new HashSet<>();
+        this.sinks = new HashSet<>();
         this.taintWrapper = taintWrapper;
         this.phantomRetStmt = PhantomRetStmt.getInstance(method);
 
@@ -86,8 +88,12 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         return changed;
     }
 
-    public List<Taint> getSources() {
+    public Set<Taint> getSources() {
         return sources;
+    }
+
+    public Set<Taint> getSinks() {
+        return sinks;
     }
 
     public void doAnalysis() {
@@ -117,13 +123,9 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             visitReturn(in, stmt);
         }
 
-//        if (stmt instanceof IfStmt) {
-//            visitIf(in, (IfStmt) stmt, out);
-//        }
-//
-//        if (sourceSinkManager.isSink(stmt)) {
-//            visitSink(in, stmt);
-//        }
+        if (sourceSinkManager.isSink(stmt)) {
+            visitSink(in, stmt);
+        }
     }
 
     private void visitAssign(Set<Taint> in, AssignStmt stmt, Set<Taint> out) {
@@ -142,9 +144,7 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
             InvokeExpr invoke = stmt.getInvokeExpr();
             if (sourceSinkManager.isSource(stmt)) {
                 Taint newTaint = Taint.getTaintFor(leftOp, stmt, method, currTaintCache);
-                if (!sources.contains(newTaint)) {
-                    sources.add(newTaint);
-                }
+                sources.add(newTaint);
                 out.add(newTaint);
             } else {
                 visitInvoke(in, stmt, invoke, out);
@@ -417,38 +417,37 @@ public class TaintFlowAnalysis extends ForwardFlowAnalysis<Unit, Set<Taint>> {
         }
     }
 
-    private void visitIf(Set<Taint> in, IfStmt stmt, Set<Taint> out) {
-        Value condition = stmt.getCondition();
+    private void visitSink(Set<Taint> in, Stmt stmt) {
+        if (!stmt.containsInvokeExpr()) return;
+        InvokeExpr invoke = stmt.getInvokeExpr();
+
+        Value base = null;
+        if (invoke instanceof InstanceInvokeExpr) {
+            base = ((InstanceInvokeExpr) invoke).getBase();
+        }
+
         for (Taint t : in) {
-            if (t.taints(condition)) {
-                out.remove(t);
-                Taint newTaint = Taint.getTransferredTaintFor(
+            // Process base object
+            if (base != null && t.taints(base)) {
+                Taint sinkTaint = Taint.getTransferredTaintFor(
                         t, t.getPlainValue(), stmt, method, currTaintCache);
-                t.addSuccessor(newTaint);
-                out.add(newTaint);
+                sinkTaint.setSink();
+                t.addSuccessor(sinkTaint);
+                sinks.add(sinkTaint);
+            }
+
+            // Process parameters
+            for (int i = 0; i < invoke.getArgCount(); i++) {
+                Value arg = invoke.getArg(i);
+                if (t.taints(arg)) {
+                    Taint sinkTaint = Taint.getTransferredTaintFor(
+                            t, t.getPlainValue(), stmt, method, currTaintCache);
+                    sinkTaint.setSink();
+                    t.addSuccessor(sinkTaint);
+                    sinks.add(sinkTaint);
+                }
             }
         }
-    }
-
-    private void visitSink(Set<Taint> in, Stmt stmt) {
-//        List<ValueBox> valueBoxes = new ArrayList<>();
-//        if (stmt instanceof DefinitionStmt) {
-//            DefinitionStmt definitionStmt = (DefinitionStmt) stmt;
-//            valueBoxes.add(definitionStmt.getRightOpBox());
-//            valueBoxes.addAll(definitionStmt.getRightOp().getUseBoxes());
-//        } else {
-//            valueBoxes.addAll(stmt.getUseBoxes());
-//        }
-//        for (Taint t : in) {
-//            for (ValueBox box : valueBoxes) {
-//                Value value = box.getValue();
-//                if (t.taints(value)) {
-//                    Taint newTaint = Taint.getTransferredTaintFor(
-//                            t, t.getValue(), stmt, method, currTaintCache);
-//                    t.addSuccessor(newTaint);
-//                }
-//            }
-//        }
     }
 
     @Override
