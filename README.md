@@ -1,8 +1,6 @@
-# cflow
+# cflow: A flow-based configuration analysis framework
 
-A flow-based configuration analysis framework
-
-* [Design Slide](https://docs.google.com/presentation/d/1XluXB7bBepI0bVzGl3IhC9ecMd1SiP1sxXrHQZax10o/edit?usp=sharing)
+[Design Slide](https://docs.google.com/presentation/d/1XluXB7bBepI0bVzGl3IhC9ecMd1SiP1sxXrHQZax10o/edit?usp=sharing)
 
 ## How to Run
 
