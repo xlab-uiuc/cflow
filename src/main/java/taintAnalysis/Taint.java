@@ -31,8 +31,10 @@ public class Taint {
     }
 
     /**
-     * Gets a globally unique taint object for a given pair of value and its statement context
+     * Gets a globally unique taint object for a given pair of value and its statement context.
+     * The whole value is tainted, whose taint is transferred from another taint object (can be null).
      *
+     * @param t             the taint from which to transfer (null when a new taint is created)
      * @param v             the value which the taint is on
      * @param stmt          the statement context of the taint
      * @param method        the method context of the taint
@@ -40,13 +42,16 @@ public class Taint {
      *                      used to ensure global uniqueness
      * @return The corresponding globally unique taint object
      */
-    public static Taint getTaintFor(Value v, Stmt stmt, SootMethod method,
+    public static Taint getTaintFor(Taint t, Value v, Stmt stmt, SootMethod method,
                                     Map<Taint, Taint> taintCache) {
         Taint newTaint = new Taint(v, stmt, method);
         if (taintCache.containsKey(newTaint)) {
             newTaint = taintCache.get(newTaint);
         } else {
             taintCache.put(newTaint, newTaint);
+        }
+        if (t != null) {
+            t.addSuccessor(newTaint);
         }
         return newTaint;
     }
@@ -89,6 +94,7 @@ public class Taint {
         } else {
             taintCache.put(newTaint, newTaint);
         }
+        t.addSuccessor(newTaint);
         return newTaint;
     }
 
@@ -167,7 +173,7 @@ public class Taint {
                 this.field = null;
             }
         } else if (transferFrom != null) {
-            // Transfer taint from t
+            // for a non-ref object-typed value, transfer taint from t
             this.plainValue = value;
             this.field = transferFrom.getField();
         } else {
@@ -212,22 +218,21 @@ public class Taint {
         return isSink;
     }
 
-    public void setSink(boolean sink) {
-        isSink = sink;
+    public void setSink() {
+        isSink = true;
     }
 
     @Override
     public String toString() {
         if (isEmpty()) return "Empty Taint";
 
-        String str = plainValue + (field != null ? "." + field : "") +
-                " in " + stmt + " in method " + method;
+        String str = "";
         if (transferType != TransferType.None) {
-            str += " " + transferType;
+            str += "[" + transferType + "] ";
         }
-        if (isSink) {
-            str += " [Sink]";
-        }
+        str += plainValue + (field != null ? "." + field : "") +
+                " in " + stmt + " in method " + method;
+
         return str;
     }
 

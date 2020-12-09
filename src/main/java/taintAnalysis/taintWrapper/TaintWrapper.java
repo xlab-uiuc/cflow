@@ -186,8 +186,7 @@ public class TaintWrapper implements ITaintWrapper {
                     if (t.taints(base)) {
                         killSet.add(t);
                     }
-                    Taint newTaint = Taint.getTaintFor(base, stmt, caller, taintCache);
-                    t.addSuccessor(newTaint);
+                    Taint newTaint = Taint.getTaintFor(t, base, stmt, caller, taintCache);
                     genSet.add(newTaint);
                 }
 
@@ -195,8 +194,7 @@ public class TaintWrapper implements ITaintWrapper {
                 if (retVal != null && (baseTainted ||
                         wrapType == MethodWrapType.TaintBoth ||
                         wrapType == MethodWrapType.TaintReturn)) {
-                    Taint newTaint = Taint.getTaintFor(retVal, stmt, caller, taintCache);
-                    t.addSuccessor(newTaint);
+                    Taint newTaint = Taint.getTaintFor(t, retVal, stmt, caller, taintCache);
                     genSet.add(newTaint);
                 }
             }
