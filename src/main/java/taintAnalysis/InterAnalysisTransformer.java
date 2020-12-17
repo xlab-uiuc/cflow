@@ -45,50 +45,50 @@ public class InterAnalysisTransformer extends SceneTransformer {
         ArrayList<Taint> sources = new ArrayList<>(analysis.getSources());
         sources.sort(Comparator.comparing(Taint::toString));
 
-        // For validation only
-        PathVisitor pv = new PathVisitor();
-        for (Taint source : sources) {
-            pv.visit(source);
-        }
+        // // For validation only
+        // PathVisitor pv = new PathVisitor();
+        // for (Taint source : sources) {
+        //     pv.visit(source);
+        // }
 
-//        int numOfThread = 5;
-//        logger.info("Reconstructing path using {} threads...", numOfThread);
-//        ExecutorService es = Executors.newFixedThreadPool(numOfThread);
-//        List<SourceSinkConnectionVisitor> todo = new ArrayList<>(sources.size());
-//        for (Taint source : sources) {
-//            todo.add(new SourceSinkConnectionVisitor(source));
-//        }
-//        try {
-//            es.invokeAll(todo);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        for (SourceSinkConnectionVisitor pv : todo) {
-//            pathsMap.put(pv.getSource(), pv.getPaths());
-//            sinks.addAll(pv.getSinks());
-//        }
-//        es.shutdown();
-//
-//        logger.info("Number of sinks reached by path reconstruction: {}", sinks.size());
-//
-//        if (printResults) {
-//            logger.info("Printing results...");
-//            for (Taint source : sources) {
-//                System.out.println("Source: " + source + " reaches:\n");
-//                List<List<Taint>> paths = pathsMap.get(source);
-//                for (List<Taint> path : paths) {
-//                    System.out.println("-- Sink " + path.get(path.size() - 1) + " along:");
-//                    for (Taint t : path) {
-//                        if (t.getStmt() instanceof PhantomIdentityStmt ||
-//                                t.getStmt() instanceof PhantomRetStmt)
-//                            continue;
-//                        System.out.println("    -> " + t);
-//                    }
-//                    System.out.println();
-//                }
-//                System.out.println();
-//            }
-//        }
+       int numOfThread = 5;
+       logger.info("Reconstructing path using {} threads...", numOfThread);
+       ExecutorService es = Executors.newFixedThreadPool(numOfThread);
+       List<SourceSinkConnectionVisitor> todo = new ArrayList<>(sources.size());
+       for (Taint source : sources) {
+           todo.add(new SourceSinkConnectionVisitor(source));
+       }
+       try {
+           es.invokeAll(todo);
+       } catch (InterruptedException e) {
+           e.printStackTrace();
+       }
+       for (SourceSinkConnectionVisitor pv : todo) {
+           pathsMap.put(pv.getSource(), pv.getPaths());
+           sinks.addAll(pv.getSinks());
+       }
+       es.shutdown();
+
+       logger.info("Number of sinks reached by path reconstruction: {}", sinks.size());
+
+       if (printResults) {
+           logger.info("Printing results...");
+           for (Taint source : sources) {
+               System.out.println("Source: " + source + " reaches:\n");
+               List<List<Taint>> paths = pathsMap.get(source);
+               for (List<Taint> path : paths) {
+                   System.out.println("-- Sink " + path.get(path.size() - 1) + " along:");
+                   for (Taint t : path) {
+                       if (t.getStmt() instanceof PhantomIdentityStmt ||
+                               t.getStmt() instanceof PhantomRetStmt)
+                           continue;
+                       System.out.println("    -> " + t);
+                   }
+                   System.out.println();
+               }
+               System.out.println();
+           }
+       }
     }
 
     public Map<Taint, List<List<Taint>>> getPathsMap() {
